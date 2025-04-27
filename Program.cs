@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SurfTicket.Attributes;
-using SurfTicket.Data;
-using SurfTicket.Filters;
-using SurfTicket.Helpers;
-using SurfTicket.Models;
+using SurfTicket.Domain.Models;
+using SurfTicket.Infrastructure.Data;
+using SurfTicket.Presentation.Attributes;
+using SurfTicket.Presentation.Helpers;
+using SurfTicket.Presentation.Middlewares;
 using System.Text;
 using System.Text.Json;
+using SurfTicket.Presentation.Dto;
+using SurfTicket.Application.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,7 +57,11 @@ builder.Services
                 context.HandleResponse();
                 context.Response.StatusCode = 401;
                 context.Response.ContentType = "application/json";
-                return context.Response.WriteAsync(JsonSerializer.Serialize(ApiResponseHelper.Error("Unauthorized", null, 401)));
+                return context.Response.WriteAsync(JsonSerializer.Serialize(ApiResponseHelper.Error("Unauthorized", new ErrorDetail()
+                {
+                    ErrorCode = (int)SurfErrorCode.UNAUTHORIZED,
+                    ErrorMessage = "Unauthorized"
+                })));
             }
         };
     });
@@ -63,12 +69,20 @@ builder.Services
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidateModelAttribute>();
-    options.Filters.Add<ExceptionFilter>();
+})
+.AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
 })
 .ConfigureApiBehaviorOptions(options =>
 {
     options.SuppressMapClientErrors = true;
     options.SuppressModelStateInvalidFilter = true;
+});
+
+builder.Services.AddMediatR(options =>
+{
+    options.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -81,6 +95,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
