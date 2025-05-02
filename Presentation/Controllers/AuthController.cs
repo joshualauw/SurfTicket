@@ -1,16 +1,10 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SurfTicket.Application.Enums;
-using SurfTicket.Application.Exceptions;
 using SurfTicket.Application.Features.Auth.Command.Login;
 using SurfTicket.Application.Features.Auth.Command.Register;
-using SurfTicket.Domain.Models;
-using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.Auth;
 using SurfTicket.Presentation.Helpers;
-using System.Net;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
 
 namespace SurfTicket.Presentation.Controllers
 {
