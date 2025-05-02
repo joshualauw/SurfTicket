@@ -4,6 +4,8 @@
     {
         public int VenueLocationId { get; set; }
         public VenueLocation VenueLocation { get; set; } = null!;
+        public int MerchantId { get; set; }
+        public Merchant Merchant { get; set; } = null!;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string? LogoUrl { get; set; }
