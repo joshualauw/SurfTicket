@@ -25,6 +25,7 @@
     <Folder Include="Domain\Repository\" />
     <Folder Include="Infrastructure\Repository\" />
     <Folder Include="Presentation\Filters\" />
+    <Folder Include="Presentation\Web\" />
   </ItemGroup>
 
 </Project>
