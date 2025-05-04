@@ -17,5 +17,8 @@ namespace SurfTicket.Infrastructure.Data
         public DbSet<TicketInvoice> TicketInvoice { get; set; }
         public DbSet<Venue> Venue { get; set; }
         public DbSet<VenueLocation> VenueLocation { get; set; }
+        public DbSet<PermissionAdmin> PermissionAdmin { get; set; }
+        public DbSet<PermissionMenu> PermissionMenu { get; set; }
+        public DbSet<MerchantUser> MerchantUser { get; set; }
     }
 }
