@@ -1,12 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/theron-wang/VS2022-Editor-Support-for-Tailwind-CSS/refs/heads/main/tailwind.extension.schema.json",
-  "ConfigurationFiles": [
-    {
-      "Path": "presentation\\web\\assets\\css\\tailwind.css",
-      "IsDefault": true,
-      "ApplicableLocations": []
-    }
-  ],
   "BuildFiles": [
     {
       "Input": "presentation\\web\\assets\\css\\tailwind.css",
