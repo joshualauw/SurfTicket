@@ -32,7 +32,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
                 throw new BadRequestSurfException(SurfErrorCode.USER_WRONG_PASSWORD, "Invalid credentials", "LoginCommand");
             }
 
-            var token = UserJwtHelper.GenerateJwtToken(_configuration, user.Id);
+            var token = UserJwtHelper.GenerateJwtToken(_configuration, user.Id, user.Email ?? "", user.UserName ?? "");
 
             return new LoginCommandResponse
             {

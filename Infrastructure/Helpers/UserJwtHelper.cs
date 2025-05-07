@@ -23,14 +23,16 @@ namespace SurfTicket.Infrastructure.Helpers
 
                 payload = new UserJwtPayload
                 {
-                    ApplicationUserID = Claims["userID"],
+                    UserId = Claims["UserId"],
+                    Email = Claims["Email"],
+                    Username = Claims["Username"]
                 };
             }
 
             return payload;
         }
 
-        public static string GenerateJwtToken(IConfiguration Configuration, string userId)
+        public static string GenerateJwtToken(IConfiguration Configuration, string userId, string email, string username)
         {
             var jwtSettings = Configuration.GetSection("JwtSettings");
 
@@ -41,7 +43,9 @@ namespace SurfTicket.Infrastructure.Helpers
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("userID", userId)
+                new Claim("UserId", userId),
+                new Claim("Email", email),
+                new Claim("Username", username),
             };
 
             var token = new JwtSecurityToken(

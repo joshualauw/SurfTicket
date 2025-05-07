@@ -2,7 +2,7 @@
 
 namespace SurfTicket.Presentation.Dto.Auth
 {
-    public class RegisterRequestBody
+    public class RegisterBody
     {
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Email must be a valid email address")]

@@ -30,12 +30,21 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
 
             if (!result.Succeeded)
             {
-                var errorCodes = result.Errors.Select(x => x.Code);
+                string errors = "";
 
-                if (errorCodes.Contains("DuplicateUserName"))
+                foreach (var error in result.Errors)
                 {
-                    throw new BadRequestSurfException(SurfErrorCode.USER_EMAIL_ALREADY_USED, "email aready used", "RegisterCommand");
+                    if (error.Code.Equals("DuplicateUserName"))
+                    {
+                        throw new BadRequestSurfException(SurfErrorCode.USER_EMAIL_ALREADY_USED, "email aready used", "RegisterCommand");
+                    }
+                    else
+                    {
+                        errors += $"#{error.Code} - {error.Description}\n";
+                    }
                 }
+
+                throw new SurfException(SurfErrorCode.INSERT_FAILED, errors, "RegisterCommand");
             }
 
             var userData = await _userManager.FindByEmailAsync(request.Email);

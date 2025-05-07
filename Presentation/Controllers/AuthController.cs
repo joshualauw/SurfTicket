@@ -1,7 +1,11 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Application.Features.Auth.Command.Login;
 using SurfTicket.Application.Features.Auth.Command.Register;
+using SurfTicket.Application.Features.Auth.Command.UpdateProfile;
+using SurfTicket.Infrastructure.Dto;
+using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.Auth;
 using SurfTicket.Presentation.Helpers;
 
@@ -21,7 +25,7 @@ namespace SurfTicket.Presentation.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestBody body)
+        public async Task<IActionResult> Login([FromBody] LoginBody body)
         {
             LoginCommand Command = new LoginCommand()
             {
@@ -35,7 +39,7 @@ namespace SurfTicket.Presentation.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] RegisterRequestBody body)
+        public async Task<ActionResult> Register([FromBody] RegisterBody body)
         {
             RegisterCommand Command = new RegisterCommand()
             {
@@ -46,6 +50,25 @@ namespace SurfTicket.Presentation.Controllers
             var result = await _sender.Send(Command);
 
             return Ok(ApiResponseHelper.Success("Register successful", result));
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileBody body)
+        {
+            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
+
+            UpdateProfileCommand Command = new UpdateProfileCommand()
+            {
+                NewEmail = body.Email,
+                OldEmail = user.Email,
+                FirstName = body.FirstName,
+                LastName = body.LastName,
+            };
+
+            var result = await _sender.Send(Command);
+
+            return Ok(ApiResponseHelper.Success("Update profile successful", result));
         }
     }
 }
