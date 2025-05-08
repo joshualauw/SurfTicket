@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SurfTicket.Application.Features.Auth.Command.ChangePassword;
 using SurfTicket.Application.Features.Auth.Command.Login;
 using SurfTicket.Application.Features.Auth.Command.Register;
 using SurfTicket.Application.Features.Auth.Command.UpdateProfile;
@@ -22,6 +23,15 @@ namespace SurfTicket.Presentation.Controllers
         {
             _configuration = configuration;
             _sender = sender;
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> Me()
+        {
+            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
+
+            return Ok(ApiResponseHelper.Success("Get me successful", user));
         }
 
         [HttpPost("login")]
@@ -52,7 +62,25 @@ namespace SurfTicket.Presentation.Controllers
             return Ok(ApiResponseHelper.Success("Register successful", result));
         }
 
-        [HttpPut]
+        [HttpPut("password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordBody body)
+        {
+            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
+
+            ChangePasswordCommand Command = new ChangePasswordCommand()
+            {
+                UserId = user.UserId,
+                OldPassword = body.OldPassword,
+                NewPassword = body.Password,
+            };
+
+            var result = await _sender.Send(Command);
+
+            return Ok(ApiResponseHelper.Success("Change password succesful", result));
+        }
+
+        [HttpPut("profile")]
         [Authorize]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileBody body)
         {

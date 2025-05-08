@@ -26,8 +26,8 @@ namespace SurfTicket.Presentation.Middlewares
             }
             catch (SurfException ex)
             {
-                _logger.LogError(ex, "Application Error - ErrorCode: {ErrorCode}, Message: {Message}, InnerException: {InnerException}, Path: {Path}, Source: {Source}, Handler: {Handler}",
-                    ex.ErrorCode, ex.Message, ex.InnerException, context.Request.Path, ex.Source, ex.Handler);
+                _logger.LogError(ex, "Application Error - ErrorCode: {ErrorCode}, Message: {Message}, InnerException: {InnerException}, Path: {Path}, Source: {Source}",
+                    ex.ErrorCode, ex.Message, ex.InnerException, context.Request.Path, ex.Source);
 
                  await ErrorJsonResponse(context, ex.Message, ex.StatusCode, (int) ex.ErrorCode);          
             }

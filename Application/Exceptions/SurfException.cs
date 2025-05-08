@@ -2,39 +2,46 @@
 
 namespace SurfTicket.Application.Exceptions
 {
-    public class SurfException : Exception
+    public abstract class SurfException : Exception
     {
         public SurfErrorCode ErrorCode { get; set; }
-        public string Handler { get; set; }
         public int StatusCode { get; set; }
 
-        public SurfException(SurfErrorCode errorCode, string message, string handler, int statusCode = 500) : base(message)
+        public SurfException(SurfErrorCode errorCode, string message, int statusCode) : base(message)
         {
             ErrorCode = errorCode;
-            Handler = handler;
             StatusCode = statusCode;
         }
 
-        public SurfException(SurfErrorCode errorCode, string message, string handler, int statusCode, Exception? inner) : base(message, inner)
+        public SurfException(SurfErrorCode errorCode, string message, int statusCode, Exception? inner) : base(message, inner)
         {
             ErrorCode = errorCode;
-            Handler = handler;
             StatusCode = statusCode;
         }
+    }
+
+    public class InternalSurfException : SurfException
+    {
+        public InternalSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 500) { }
     }
 
     public class BadRequestSurfException : SurfException
     {
-        public BadRequestSurfException(SurfErrorCode errorCode, string message, string handler) : base(errorCode, message, handler, 400) { }
+        public BadRequestSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 400) { }
+    }
+
+    public class UnprocessableSurfException : SurfException
+    {
+        public UnprocessableSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 422) { }
     }
 
     public class UnauthorizedSurfException : SurfException
     {
-        public UnauthorizedSurfException(SurfErrorCode errorCode, string message, string handler) : base(errorCode, message, handler, 401) { }
+        public UnauthorizedSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 401) { }
     }
 
     public class NotFoundSurfException : SurfException
     {
-        public NotFoundSurfException(SurfErrorCode errorCode, string message, string handler) : base(errorCode, message, handler, 404) { }
+        public NotFoundSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 404) { }
     }
 }

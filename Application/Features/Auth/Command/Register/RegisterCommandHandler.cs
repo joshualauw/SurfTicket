@@ -36,7 +36,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                 {
                     if (error.Code.Equals("DuplicateUserName"))
                     {
-                        throw new BadRequestSurfException(SurfErrorCode.USER_EMAIL_ALREADY_USED, "email aready used", "RegisterCommand");
+                        throw new BadRequestSurfException(SurfErrorCode.USER_EMAIL_ALREADY_USED, "email aready used");
                     }
                     else
                     {
@@ -44,13 +44,13 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                     }
                 }
 
-                throw new SurfException(SurfErrorCode.INSERT_FAILED, errors, "RegisterCommand");
+                throw new UnprocessableSurfException(SurfErrorCode.INSERT_FAILED, errors);
             }
 
             var userData = await _userManager.FindByEmailAsync(request.Email);
             if (userData == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found", "RegisterCommannd");
+                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
             }
 
             return new RegisterCommandResponse()

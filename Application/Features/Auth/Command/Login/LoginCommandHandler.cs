@@ -23,13 +23,13 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new BadRequestSurfException(SurfErrorCode.USER_NOT_FOUND, "Invalid credentials", "LoginCommand");
+                throw new BadRequestSurfException(SurfErrorCode.USER_NOT_FOUND, "Invalid credentials");
             }
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!isPasswordValid)
             {
-                throw new BadRequestSurfException(SurfErrorCode.USER_WRONG_PASSWORD, "Invalid credentials", "LoginCommand");
+                throw new BadRequestSurfException(SurfErrorCode.USER_WRONG_PASSWORD, "Invalid credentials");
             }
 
             var token = UserJwtHelper.GenerateJwtToken(_configuration, user.Id, user.Email ?? "", user.UserName ?? "");
@@ -37,12 +37,6 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
             return new LoginCommandResponse
             {
                 Token = token,
-                User = new LoginCommandUser()
-                {
-                    Id = user.Id,
-                    Username = user.UserName,
-                    Email = user.Email
-                }
             };
 
         }

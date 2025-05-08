@@ -20,7 +20,7 @@ namespace SurfTicket.Application.Features.Auth.Command.UpdateProfile
 
             if (user == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found", "UpdateProfileCommandHandler");
+                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
             }
 
             user.FirstName = request.FirstName;
@@ -39,7 +39,7 @@ namespace SurfTicket.Application.Features.Auth.Command.UpdateProfile
                     errors += $"#{error.Code} - {error.Description}\n";
                 }
 
-                throw new SurfException(SurfErrorCode.UPDATE_FAILED, errors, "UpdateProfileCommandHandler");       
+                throw new UnprocessableSurfException(SurfErrorCode.UPDATE_FAILED, errors);
             }
 
             return new UpdateProfileCommandResponse();
