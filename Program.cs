@@ -10,8 +10,10 @@ using SurfTicket.Presentation.Middlewares;
 using System.Text;
 using System.Text.Json;
 using SurfTicket.Presentation.Dto;
-using SurfTicket.Application.Enums;
 using Microsoft.OpenApi.Models;
+using SurfTicket.Application.Exceptions;
+using SurfTicket.Infrastructure.Repository.Interface;
+using SurfTicket.Infrastructure.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
 });
 
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<UserEntity, IdentityRole>()
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
@@ -30,6 +32,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
+    options.SignIn.RequireConfirmedEmail = true;
     options.Lockout.AllowedForNewUsers = true;
 });
 
@@ -100,6 +103,10 @@ builder.Services.AddMediatR(options =>
 {
     options.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
+
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<IPlanRepository, PlanRepository>();
+builder.Services.AddScoped<IMerchantRepository, MerchantRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

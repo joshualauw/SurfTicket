@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Application.Features.Auth.Command.ChangePassword;
 using SurfTicket.Application.Features.Auth.Command.Login;
 using SurfTicket.Application.Features.Auth.Command.Register;
-using SurfTicket.Application.Features.Auth.Command.UpdateProfile;
+using SurfTicket.Application.Features.Auth.Command.VerifyEmail;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.Auth;
@@ -34,16 +34,30 @@ namespace SurfTicket.Presentation.Controllers
             return Ok(ApiResponseHelper.Success("Get me successful", user));
         }
 
+        [HttpPost("verify")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailBody body)
+        {
+            VerifyEmailCommand command = new VerifyEmailCommand()
+            {
+                VerifyCode = body.VerifyCode,
+                Email = body.Email,
+            };
+
+            var result = await _sender.Send(command);
+
+            return Ok(ApiResponseHelper.Success("Verify email successful", result));
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginBody body)
         {
-            LoginCommand Command = new LoginCommand()
+            LoginCommand command = new LoginCommand()
             {
                 Email = body.Email,
                 Password = body.Password,
             };
 
-            var result = await _sender.Send(Command);              
+            var result = await _sender.Send(command);              
 
             return Ok(ApiResponseHelper.Success("Login successful", result));           
         }
@@ -51,13 +65,13 @@ namespace SurfTicket.Presentation.Controllers
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] RegisterBody body)
         {
-            RegisterCommand Command = new RegisterCommand()
+            RegisterCommand command = new RegisterCommand()
             {
                 Email = body.Email,
                 Password = body.Password,
             };
 
-            var result = await _sender.Send(Command);
+            var result = await _sender.Send(command);
 
             return Ok(ApiResponseHelper.Success("Register successful", result));
         }
@@ -68,35 +82,16 @@ namespace SurfTicket.Presentation.Controllers
         {
             UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
 
-            ChangePasswordCommand Command = new ChangePasswordCommand()
+            ChangePasswordCommand command = new ChangePasswordCommand()
             {
                 UserId = user.UserId,
                 OldPassword = body.OldPassword,
                 NewPassword = body.Password,
             };
 
-            var result = await _sender.Send(Command);
+            var result = await _sender.Send(command);
 
             return Ok(ApiResponseHelper.Success("Change password succesful", result));
-        }
-
-        [HttpPut("profile")]
-        [Authorize]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileBody body)
-        {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
-            UpdateProfileCommand Command = new UpdateProfileCommand()
-            {
-                NewEmail = body.Email,
-                OldEmail = user.Email,
-                FirstName = body.FirstName,
-                LastName = body.LastName,
-            };
-
-            var result = await _sender.Send(Command);
-
-            return Ok(ApiResponseHelper.Success("Update profile successful", result));
         }
     }
 }

@@ -1,20 +1,22 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using SurfTicket.Application.Enums;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Helpers;
+using SurfTicket.Infrastructure.Dto;
 
 namespace SurfTicket.Application.Features.Auth.Command.Login
 {
     public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginCommandResponse>
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<UserEntity> _userManager;
+        private readonly SignInManager<UserEntity> _signInManager;
         private readonly IConfiguration _configuration;
 
-        public LoginCommandHandler(UserManager<User> userManager, IConfiguration configuration)
+        public LoginCommandHandler(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager, IConfiguration configuration)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _configuration = configuration;
         }
 
@@ -26,13 +28,33 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
                 throw new BadRequestSurfException(SurfErrorCode.USER_NOT_FOUND, "Invalid credentials");
             }
 
-            var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-            if (!isPasswordValid)
+            var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
+
+            if (!result.Succeeded)
             {
-                throw new BadRequestSurfException(SurfErrorCode.USER_WRONG_PASSWORD, "Invalid credentials");
+                if (result.IsNotAllowed && !user.EmailConfirmed)
+                {
+                    throw new BadRequestSurfException(SurfErrorCode.USER_NOT_CONFIRMED, "Email not confirmed");
+                }
+                else
+                {
+                    throw new BadRequestSurfException(SurfErrorCode.USER_WRONG_PASSWORD, "Invalid credentials");
+                }
             }
 
-            var token = UserJwtHelper.GenerateJwtToken(_configuration, user.Id, user.Email ?? "", user.UserName ?? "");
+            if (user.Email == null || user.UserName == null)
+            {
+                throw new BadRequestSurfException(SurfErrorCode.USER_NOT_FOUND, "Invalid credentials");
+            }
+
+            var token = UserJwtHelper.GenerateJwtToken(_configuration, new UserJwtPayload()
+            {
+                Email = user.Email,
+                UserId = user.Id,
+                Username = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+            });
 
             return new LoginCommandResponse
             {

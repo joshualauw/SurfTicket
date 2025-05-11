@@ -1,6 +1,4 @@
-﻿using SurfTicket.Application.Enums;
-
-namespace SurfTicket.Application.Exceptions
+﻿namespace SurfTicket.Application.Exceptions
 {
     public abstract class SurfException : Exception
     {

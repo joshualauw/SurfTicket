@@ -1,29 +1,36 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
-using SurfTicket.Application.Enums;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
+using SurfTicket.Infrastructure.Helpers;
+using SurfTicket.Infrastructure.Repository;
+using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Auth.Command.Register
 {
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterCommandResponse>
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<UserEntity> _userManager;
+        private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly IPlanRepository _planRepository;
         private readonly IConfiguration _configuration;
 
-        public RegisterCommandHandler(UserManager<User> userManager, IConfiguration configuration)
+        public RegisterCommandHandler(UserManager<UserEntity> userManager, IConfiguration configuration, ISubscriptionRepository subscriptionRepository, IPlanRepository planRepository)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _subscriptionRepository = subscriptionRepository;
+            _planRepository = planRepository;
         }
 
         public async Task<RegisterCommandResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
-            User user = new User()
+            UserEntity user = new UserEntity()
             {
                 Email = request.Email,
-                UserName = request.Email
+                UserName = request.Email,
+                FirstName = "",
+                LastName = ""
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -53,11 +60,31 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                 throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
             }
 
+            var basicPlan = await _planRepository.GetPlanByCode("basic");
+            if (basicPlan != null)
+            {
+                SubscriptionEntity subscription = new SubscriptionEntity()
+                {
+                     PlanId = basicPlan.Id,
+                     UserId = user.Id,
+                     StartAt = DateTime.UtcNow,
+                     IsActive = true
+
+                };
+                await _subscriptionRepository.CreateAsync(subscription);
+            }
+
+            var verifyCode = GenCodeHelper.GenerateCode(6);
+            userData.VerifyCode = verifyCode;
+
+            await _userManager.UpdateAsync(userData);
+
             return new RegisterCommandResponse()
             {
                 Id = userData.Id,
                 Email = userData.Email,
-                Username = userData.UserName
+                Username = userData.UserName,
+                VerifyCode = verifyCode,
             };
         }
     }

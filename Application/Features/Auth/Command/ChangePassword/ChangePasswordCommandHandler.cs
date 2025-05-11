@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using SurfTicket.Application.Enums;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 
@@ -8,10 +7,10 @@ namespace SurfTicket.Application.Features.Auth.Command.ChangePassword
 {
     public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, ChangePasswordCommandResponse>
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<UserEntity> _userManager;
+        private readonly SignInManager<UserEntity> _signInManager;
 
-        public ChangePasswordCommandHandler(UserManager<User> userManager, SignInManager<User> signInManager)
+        public ChangePasswordCommandHandler(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

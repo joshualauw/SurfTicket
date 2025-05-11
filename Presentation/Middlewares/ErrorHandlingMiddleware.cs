@@ -2,7 +2,6 @@
 using SurfTicket.Presentation.Helpers;
 using SurfTicket.Presentation.Dto;
 using SurfTicket.Application.Exceptions;
-using SurfTicket.Application.Enums;
 using Newtonsoft.Json.Serialization;
 
 namespace SurfTicket.Presentation.Middlewares

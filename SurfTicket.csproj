@@ -22,8 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\Contracts\" />
-    <Folder Include="Infrastructure\Repository\" />
     <Folder Include="Presentation\Filters\" />
     <Folder Include="Presentation\Web\" />
   </ItemGroup>
