@@ -6,7 +6,8 @@ namespace SurfTicket.Presentation.Dto.Merchant
     {
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
-        [StringLength(1, MinimumLength = 1, ErrorMessage = "Description cannot be empty")]
-        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Description is required")]
+        public string Description { get; set; }
     }
 }

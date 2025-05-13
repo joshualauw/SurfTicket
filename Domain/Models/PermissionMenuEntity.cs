@@ -8,6 +8,6 @@ namespace SurfTicket.Domain.Models
         public PermissionAdminEntity PermissionAdmin { get; set; }
         public int MerchantUserId { get; set; }
         public MerchantUserEntity MerchantUser { get; set; }
-        public PermissionType Access { get; set; }
+        public PermissionAccess Access { get; set; }
     }
 }

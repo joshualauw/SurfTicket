@@ -2,8 +2,9 @@
 
 namespace SurfTicket.Domain.Models
 {
-    public class TicketInvoiceEntity : BaseEntity
+    public class TicketPurchaseEntity : BaseEntity
     {
+        public int TicketPurchaseId { get; set; }
         public int TicketId { get; set; }
         public TicketEntity Ticket { get; set; }
         public string UserId { get; set; }

@@ -20,5 +20,10 @@ namespace SurfTicket.Infrastructure.Repository
 
             return entity;
         }
+
+        public async Task<SubscriptionEntity?> GetUserActiveSubscriptionAsync(string userId)
+        {
+            return await _dbContext.Subscription.Where(s => s.UserId == userId && s.IsActive).Include(s => s.Plan).FirstOrDefaultAsync();
+        }
     }
 }

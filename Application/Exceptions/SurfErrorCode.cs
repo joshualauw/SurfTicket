@@ -11,6 +11,8 @@
         INSERT_FAILED = 3001,
         UPDATE_FAILED = 3002,
         DELETE_FAILED = 3003,
-        UNAUTHORIZED = 4000
+        UNAUTHORIZED = 4000,
+        MERCHANT_EXCEED = 5000,
+
     }
 }

@@ -1,10 +1,19 @@
-﻿namespace SurfTicket.Domain.Enums
+﻿using System.Runtime.Serialization;
+
+namespace SurfTicket.Domain.Enums
 {
     public enum TicketInvoiceStatus
     {
-        PENDING = 0,
-        SUCCESS = 1,
-        FAILED = 2,
-        REFUNDED = 3
+        [EnumMember(Value = "pending")]
+        PENDING,
+
+        [EnumMember(Value = "success")]
+        SUCCESS,
+
+        [EnumMember(Value = "failed")]
+        FAILED,
+
+        [EnumMember(Value = "refunded")]
+        REFUNDED
     }
 }

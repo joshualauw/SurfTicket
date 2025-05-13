@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurfTicket.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SurfTicket.Infrastructure.Data;
 namespace SurfTicket.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250513054821_EnumFieldsAdjustment")]
+    partial class EnumFieldsAdjustment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -548,7 +551,7 @@ namespace SurfTicket.Migrations
                     b.Property<DateTime?>("ScannedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TicketPurchaseId")
+                    b.Property<int>("TicketInvoiceId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -559,12 +562,12 @@ namespace SurfTicket.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketPurchaseId");
+                    b.HasIndex("TicketInvoiceId");
 
                     b.ToTable("TicketEntry", (string)null);
                 });
 
-            modelBuilder.Entity("SurfTicket.Domain.Models.TicketPurchaseEntity", b =>
+            modelBuilder.Entity("SurfTicket.Domain.Models.TicketInvoiceEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -591,9 +594,6 @@ namespace SurfTicket.Migrations
                     b.Property<int>("TicketId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TicketPurchaseId")
-                        .HasColumnType("int");
-
                     b.Property<double>("Total")
                         .HasColumnType("float");
 
@@ -613,7 +613,7 @@ namespace SurfTicket.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketPurchase", (string)null);
+                    b.ToTable("TicketInvoice", (string)null);
                 });
 
             modelBuilder.Entity("SurfTicket.Domain.Models.TicketScanWindowEntity", b =>
@@ -938,8 +938,9 @@ namespace SurfTicket.Migrations
                             b1.Property<int>("MaxTicketsPerMerchant")
                                 .HasColumnType("int");
 
-                            b1.Property<int>("ReportLevel")
-                                .HasColumnType("int");
+                            b1.Property<string>("ReportType")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("PlanEntityId");
 
@@ -998,25 +999,25 @@ namespace SurfTicket.Migrations
 
             modelBuilder.Entity("SurfTicket.Domain.Models.TicketEntryEntity", b =>
                 {
-                    b.HasOne("SurfTicket.Domain.Models.TicketPurchaseEntity", "TicketPurchase")
+                    b.HasOne("SurfTicket.Domain.Models.TicketInvoiceEntity", "TicketInvoice")
                         .WithMany("TicketEntries")
-                        .HasForeignKey("TicketPurchaseId")
+                        .HasForeignKey("TicketInvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("TicketPurchase");
+                    b.Navigation("TicketInvoice");
                 });
 
-            modelBuilder.Entity("SurfTicket.Domain.Models.TicketPurchaseEntity", b =>
+            modelBuilder.Entity("SurfTicket.Domain.Models.TicketInvoiceEntity", b =>
                 {
                     b.HasOne("SurfTicket.Domain.Models.TicketEntity", "Ticket")
-                        .WithMany("TicketPurchases")
+                        .WithMany("TicketInvoices")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SurfTicket.Domain.Models.UserEntity", "User")
-                        .WithMany("TicketPurchases")
+                        .WithMany("TicketInvoices")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1082,12 +1083,12 @@ namespace SurfTicket.Migrations
                 {
                     b.Navigation("TicketBuyWindows");
 
-                    b.Navigation("TicketPurchases");
+                    b.Navigation("TicketInvoices");
 
                     b.Navigation("TicketScanWindows");
                 });
 
-            modelBuilder.Entity("SurfTicket.Domain.Models.TicketPurchaseEntity", b =>
+            modelBuilder.Entity("SurfTicket.Domain.Models.TicketInvoiceEntity", b =>
                 {
                     b.Navigation("TicketEntries");
                 });
@@ -1096,7 +1097,7 @@ namespace SurfTicket.Migrations
                 {
                     b.Navigation("MerchantUsers");
 
-                    b.Navigation("TicketPurchases");
+                    b.Navigation("TicketInvoices");
                 });
 
             modelBuilder.Entity("SurfTicket.Domain.Models.VenueEntity", b =>

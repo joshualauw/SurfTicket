@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Helpers;
-using SurfTicket.Infrastructure.Repository;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Auth.Command.Register
@@ -29,8 +29,6 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
             {
                 Email = request.Email,
                 UserName = request.Email,
-                FirstName = "",
-                LastName = ""
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -60,7 +58,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                 throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
             }
 
-            var basicPlan = await _planRepository.GetPlanByCode("basic");
+            var basicPlan = await _planRepository.GetPlanByCodeAsync(PlanCode.BASIC);
             if (basicPlan != null)
             {
                 SubscriptionEntity subscription = new SubscriptionEntity()

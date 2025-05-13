@@ -1,8 +1,13 @@
-﻿namespace SurfTicket.Domain.Enums
+﻿using System.Runtime.Serialization;
+
+namespace SurfTicket.Domain.Enums
 {
     public enum MerchantRole
     {
-        OWNER = 0,
-        COLLABORATOR = 1,
+        [EnumMember(Value = "owner")]
+        OWNER,
+
+        [EnumMember(Value = "collaborator")]
+        COLLABORATOR,
     }
 }

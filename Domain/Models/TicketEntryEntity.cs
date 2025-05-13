@@ -4,10 +4,10 @@ namespace SurfTicket.Domain.Models
 {
     public class TicketEntryEntity : BaseEntity
     {
-        public int TicketInvoiceId { get; set; }
-        public TicketInvoiceEntity TicketInvoice { get; set; }
+        public int TicketPurchaseId { get; set; }
+        public TicketPurchaseEntity TicketPurchase { get; set; }
         public string ScanCode { get; set; }
-        public TicketScanStatus Status { get; set; }
+        public bool IsScanned { get; set; } = false;
         public DateTime? ScannedAt { get; set; }
     }
 }

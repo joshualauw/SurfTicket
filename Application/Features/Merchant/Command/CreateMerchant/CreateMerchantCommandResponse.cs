@@ -2,6 +2,6 @@
 {
     public class CreateMerchantCommandResponse
     {
-        public int Id { get; set; }
+        public int MerchantId { get; set; }
     }
 }

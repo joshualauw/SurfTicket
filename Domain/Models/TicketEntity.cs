@@ -17,6 +17,6 @@
         public DateTime CanScanUntil { get; set; }
         public List<TicketBuyWindowEntity> TicketBuyWindows { get; set; }
         public List<TicketScanWindowEntity> TicketScanWindows { get; set; }
-        public List<TicketInvoiceEntity> TicketInvoices { get; set; }
+        public List<TicketPurchaseEntity> TicketPurchases { get; set; }
     }
 }
