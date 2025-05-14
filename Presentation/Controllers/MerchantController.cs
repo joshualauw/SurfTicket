@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Application.Features.Merchant.Command.CreateMerchant;
+using SurfTicket.Application.Features.Merchant.Query.GetHandlerMerchants;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.Merchant;
@@ -20,6 +21,21 @@ namespace SurfTicket.Presentation.Controllers
         {
             _configuration = configuration;
             _sender = sender;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHandledMerchants()
+        {
+            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
+
+            GetHandledMerchantsQuery query = new GetHandledMerchantsQuery()
+            {
+                UserId = user.UserId,
+            };
+
+            var result = await _sender.Send(query);
+
+            return Ok(ApiResponseHelper.Success("Get handled merchants successful", result));
         }
 
         [HttpPost]

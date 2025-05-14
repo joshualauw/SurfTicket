@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 
-namespace SurfTicket.Application.Features.User.Query
+namespace SurfTicket.Application.Features.User.Query.GetUserProfile
 {
     public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, GetUserProfileQueryResponse>
     {
@@ -28,7 +28,7 @@ namespace SurfTicket.Application.Features.User.Query
             {
                 Email = user.Email,
                 Username = user.UserName,
-                FirstName = user.FirstName, 
+                FirstName = user.FirstName,
                 LastName = user.LastName,
             };
         }

@@ -1,4 +1,4 @@
-﻿namespace SurfTicket.Application.Features.User.Query
+﻿namespace SurfTicket.Application.Features.User.Query.GetUserProfile
 {
     public class GetUserProfileQueryResponse
     {

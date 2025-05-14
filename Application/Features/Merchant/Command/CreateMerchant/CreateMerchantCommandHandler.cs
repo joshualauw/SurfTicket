@@ -45,9 +45,9 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
 
             int merchantOwned = await _merchantUserRepository.GetUserMerchantCountAsync(user.Id);
 
-            if (merchantOwned > activeSubscription.Plan.Features.MaxOwnedMerchant)
+            if (merchantOwned >= activeSubscription.Plan.Features.MaxOwnedMerchant)
             {
-                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED, "maximum merchant created");
+                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED, "maximum number of merchant created");
             }
 
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())

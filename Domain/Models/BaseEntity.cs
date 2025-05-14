@@ -1,4 +1,6 @@
-﻿namespace SurfTicket.Domain.Models
+﻿using Newtonsoft.Json;
+
+namespace SurfTicket.Domain.Models
 {
     public class BaseEntity
     {
@@ -7,6 +9,8 @@
         public DateTime? UpdatedAt { get; set; }
         public string? CreatedBy { get; set; }
         public string? UpdatedBy { get; set; }
+
+        [JsonIgnore]
         public bool IsDeleted { get; set; } = false;
     }
 }

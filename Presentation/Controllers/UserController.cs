@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Application.Features.User.Command.UpdateProfile;
-using SurfTicket.Application.Features.User.Query;
+using SurfTicket.Application.Features.User.Query.GetUserProfile;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.User;
