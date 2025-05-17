@@ -5,6 +5,7 @@ using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
+using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
 {
@@ -12,10 +13,12 @@ namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
     {
         private readonly UserManager<UserEntity> _userManager;
         private readonly IConfiguration _configuration;
-        public VerifyEmailCommandHandler(UserManager<UserEntity> userManager, IConfiguration configuration)
+        private readonly ISubscriptionRepository _subscriptionRepository;
+        public VerifyEmailCommandHandler(UserManager<UserEntity> userManager, IConfiguration configuration, ISubscriptionRepository subscriptionRepository)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _subscriptionRepository = subscriptionRepository;
         }
 
         public async Task<VerifyEmailCommandResponse> Handle(VerifyEmailCommand request, CancellationToken cancellationToken)
@@ -46,6 +49,12 @@ namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
             user.VerifyCode = null;
             await _userManager.UpdateAsync(user);
 
+            var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
+            if (activeSubscription == null)
+            {
+                throw new BadRequestSurfException(SurfErrorCode.READ_FAILED, "User have no active subscriptions");
+            }
+
             var token = UserJwtHelper.GenerateJwtToken(_configuration, new UserJwtPayload()
             {
                 Email = user.Email,
@@ -53,6 +62,7 @@ namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
                 Username = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                ActivePlan = activeSubscription.Plan.Code   
             });
 
             return new VerifyEmailCommandResponse()

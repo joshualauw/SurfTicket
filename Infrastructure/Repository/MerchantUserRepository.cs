@@ -2,6 +2,7 @@
 using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Data;
+using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Infrastructure.Repository
@@ -15,51 +16,11 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public async Task<List<PermissionMenuEntity>> AssignPermissionAsync(int merchantUserId, EntityAudit? audit = null)
+        public void Create(MerchantUserEntity entity, EntityAudit? audit = null)
         {
-            var existingPermissions = await _dbContext.PermissionMenu.Where(pm => pm.MerchantUserId == merchantUserId).ToListAsync();
-            if (existingPermissions.Any())
-            {
-                _dbContext.PermissionMenu.RemoveRange(existingPermissions);
-                await _dbContext.SaveChangesAsync();
-            }
-
-            List<PermissionMenuEntity> permissionMenus = new List<PermissionMenuEntity>();
-
-            foreach (PermissionCode code in Enum.GetValues(typeof(PermissionCode)))
-            {
-                foreach (PermissionAccess access in Enum.GetValues(typeof(PermissionAccess)))
-                {
-                    PermissionMenuEntity menu = new PermissionMenuEntity()
-                    {
-                        Code = code,
-                        MerchantUserId = merchantUserId,
-                        Access = access,
-                    };
-                    if (audit != null && audit.CreatedBy != null)
-                    {
-                        menu.CreatedBy = audit.CreatedBy;
-                    }
-
-                    permissionMenus.Add(menu);
-                }
-            }
-
-            _dbContext.PermissionMenu.AddRange(permissionMenus);
-            await _dbContext.SaveChangesAsync();
-
-            return permissionMenus;
-        }
-
-        public async Task CreateAsync(MerchantUserEntity entity, EntityAudit? audit = null)
-        {
-            if (audit != null && audit.CreatedBy != null)
-            {
-                entity.CreatedBy = audit.CreatedBy;
-            }
+            AuditHelper.CreatedBy(entity, audit);
 
             _dbContext.MerchantUser.Add(entity);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<MerchantUserEntity?> GetMerchantUserAsync(int merchantId, string userId)
@@ -75,8 +36,14 @@ namespace SurfTicket.Infrastructure.Repository
             }
             else if (entity.Role == MerchantRole.COLLABORATOR)
             {
+                var permission = await _dbContext.PermissionAdmin.FirstOrDefaultAsync(p => p.Code == code);
+                if (permission == null)
+                {
+                    return false;
+                }
+
                 return await _dbContext.PermissionMenu
-                .Where(pm => pm.MerchantUserId == entity.Id && pm.Code == code && pm.Access == access)
+                .Where(pm => pm.MerchantUserId == entity.Id && pm.PermissionAdminId == permission.Id && pm.Access == access)
                 .AnyAsync();
             }
             else

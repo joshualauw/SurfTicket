@@ -4,6 +4,7 @@ using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Infrastructure.Dto;
+using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Auth.Command.Login
 {
@@ -12,12 +13,17 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
         private readonly UserManager<UserEntity> _userManager;
         private readonly SignInManager<UserEntity> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly ISubscriptionRepository _subscriptionRepository;
 
-        public LoginCommandHandler(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager, IConfiguration configuration)
+        public LoginCommandHandler(UserManager<UserEntity> userManager, 
+            SignInManager<UserEntity> signInManager, 
+            IConfiguration configuration, 
+            ISubscriptionRepository subscriptionRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _subscriptionRepository = subscriptionRepository;
         }
 
         public async Task<LoginCommandResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -47,6 +53,12 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
                 throw new BadRequestSurfException(SurfErrorCode.USER_NOT_FOUND, "Invalid credentials");
             }
 
+            var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
+            if (activeSubscription == null)
+            {
+                throw new BadRequestSurfException(SurfErrorCode.READ_FAILED, "User have no active subscriptions");
+            }
+
             var token = UserJwtHelper.GenerateJwtToken(_configuration, new UserJwtPayload()
             {
                 Email = user.Email,
@@ -54,6 +66,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
                 Username = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                ActivePlan = activeSubscription.Plan.Code,
             });
 
             return new LoginCommandResponse

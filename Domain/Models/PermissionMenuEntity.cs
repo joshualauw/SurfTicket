@@ -6,7 +6,8 @@ namespace SurfTicket.Domain.Models
     {
         public int MerchantUserId { get; set; }
         public MerchantUserEntity MerchantUser { get; set; }
+        public int PermissionAdminId { get; set; }
+        public PermissionAdminEntity PermissionAdmin { get; set; }
         public PermissionAccess Access { get; set; }
-        public PermissionCode Code { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Dto;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,7 +11,6 @@ namespace SurfTicket.Infrastructure.Helpers
     {
         public static UserJwtPayload GetJwtUser(HttpContext context)
         {
-            Dictionary<string, string> Claims = new Dictionary<string, string>();
             UserJwtPayload payload = new UserJwtPayload();
 
             if (context.User.Identity?.IsAuthenticated == true)
@@ -19,7 +19,7 @@ namespace SurfTicket.Infrastructure.Helpers
                 var handler = new JwtSecurityTokenHandler();
                 var jsonToken = handler.ReadJwtToken(tokenString);
 
-                Claims = jsonToken.Claims.ToDictionary(c => c.Type, c => c.Value);
+                var Claims = jsonToken.Claims.ToDictionary(c => c.Type, c => c.Value);
 
                 payload = new UserJwtPayload
                 {
@@ -28,6 +28,7 @@ namespace SurfTicket.Infrastructure.Helpers
                     Username = Claims["Username"],
                     FirstName = Claims["FirstName"],
                     LastName = Claims["LastName"],
+                    ActivePlan = (PlanCode) Enum.Parse(typeof(PlanCode), Claims["ActivePlan"].ToString())
                 };
             }
 
@@ -41,7 +42,8 @@ namespace SurfTicket.Infrastructure.Helpers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"] ?? ""));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var props = payload.GetType().GetProperties();
+            var claims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.Sub, payload.UserId),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -50,6 +52,7 @@ namespace SurfTicket.Infrastructure.Helpers
                 new Claim("Username", payload.Username),
                 new Claim("FirstName", payload.FirstName),
                 new Claim("LastName", payload.LastName),
+                new Claim("ActivePlan", payload.ActivePlan.ToString()),
             };
 
             var token = new JwtSecurityToken(

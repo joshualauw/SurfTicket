@@ -10,11 +10,13 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
     {
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IVenueRepository _venueRepository;
+        private readonly IEfUnitOfWork _efUnitOfWork;
 
-        public CreateVenueCommandHandler(IMerchantUserRepository merchantUserRepository, IVenueRepository venueRepository)
+        public CreateVenueCommandHandler(IMerchantUserRepository merchantUserRepository, IVenueRepository venueRepository, IEfUnitOfWork efUnitOfWork)
         {
             _merchantUserRepository = merchantUserRepository;
             _venueRepository = venueRepository;
+            _efUnitOfWork = efUnitOfWork;
         }
 
         public async Task<CreateVenueCommandResponse> Handle(CreateVenueCommand request, CancellationToken cancellationToken)
@@ -42,7 +44,8 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
                     Description = request.Description,
                 };
 
-                await _venueRepository.CreateAsync(venue, audit);
+                _venueRepository.Create(venue, audit);
+                await _efUnitOfWork.SaveChangesAsync();
 
                 return new CreateVenueCommandResponse
                 {

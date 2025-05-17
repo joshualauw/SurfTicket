@@ -2,6 +2,7 @@
 using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Data;
+using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Infrastructure.Repository
@@ -14,17 +15,11 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public async Task<MerchantEntity?> CreateAsync(MerchantEntity entity, EntityAudit? audit = null)
+        public void Create(MerchantEntity entity, EntityAudit? audit = null)
         {
-            if (audit != null && audit.CreatedBy != null)
-            {
-                entity.CreatedBy = audit.CreatedBy;
-            }
-                        
+            AuditHelper.CreatedBy(entity, audit);  
+            
             _dbContext.Merchant.Add(entity);
-            await _dbContext.SaveChangesAsync();
-
-            return entity;
         }
 
         public async Task<List<MerchantEntity>> GetMerchantsByRoleAsync(string userId, MerchantRole role)

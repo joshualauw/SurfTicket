@@ -1,12 +1,9 @@
-﻿using Newtonsoft.Json;
-
-namespace SurfTicket.Domain.Models
+﻿namespace SurfTicket.Domain.Models
 {
     public class BaseEntity : EntityAudit
     {
         public int Id { get; set; }
 
-        [JsonIgnore]
         public bool IsDeleted { get; set; } = false;
     }
 

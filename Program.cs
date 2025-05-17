@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Infrastructure.Repository;
+using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,7 @@ builder.Services.AddControllers(options =>
 .AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+    options.SerializerSettings.Converters.Add(new StringEnumConverter());
 })
 .ConfigureApiBehaviorOptions(options =>
 {
@@ -104,6 +106,7 @@ builder.Services.AddMediatR(options =>
     options.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 
+builder.Services.AddScoped<IEfUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<IPlanRepository, PlanRepository>();
 builder.Services.AddScoped<IMerchantRepository, MerchantRepository>();

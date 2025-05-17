@@ -18,6 +18,7 @@ namespace SurfTicket.Infrastructure.Data
         public DbSet<TicketPurchaseEntity> TicketPurchase { get; set; }
         public DbSet<VenueEntity> Venue { get; set; }
         public DbSet<VenueLocationEntity> VenueLocation { get; set; }
+        public DbSet<PermissionAdminEntity> PermissionAdmin { get; set; }
         public DbSet<PermissionMenuEntity> PermissionMenu { get; set; }
         public DbSet<MerchantUserEntity> MerchantUser { get; set; }
         public DbSet<PlanEntity> Plan { get; set; }
@@ -35,6 +36,7 @@ namespace SurfTicket.Infrastructure.Data
             builder.Entity<TicketEntryEntity>().ToTable("TicketEntry");
             builder.Entity<TicketPurchaseEntity>().ToTable("TicketPurchase");
             builder.Entity<VenueEntity>().ToTable("Venue");
+            builder.Entity<PermissionAdminEntity>().ToTable("PermissionAdmin");
             builder.Entity<PermissionMenuEntity>().ToTable("PermissionMenu");
             builder.Entity<MerchantUserEntity>().ToTable("MerchantUser");
             builder.Entity<PlanEntity>().ToTable("Plan");
@@ -55,7 +57,7 @@ namespace SurfTicket.Infrastructure.Data
                 v => v.ToString(),
                 v => (PermissionAccess) Enum.Parse(typeof(PermissionAccess), v)
             );
-            builder.Entity<PermissionMenuEntity>().Property(p => p.Code).HasConversion(
+            builder.Entity<PermissionAdminEntity>().Property(p => p.Code).HasConversion(
                 v => v.ToString(),
                 v => (PermissionCode) Enum.Parse(typeof (PermissionCode), v)
             );

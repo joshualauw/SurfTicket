@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Application.Features.Merchant.Command.CreateMerchant;
 using SurfTicket.Application.Features.Venue.Command.CreateVenue;
+using SurfTicket.Application.Features.Venue.Query.GetAdminVenues;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.Venue;
@@ -10,7 +11,7 @@ using SurfTicket.Presentation.Helpers;
 
 namespace SurfTicket.Presentation.Controllers
 {
-    [Route("api/merchant")]
+    [Route("api/venue")]
     [ApiController]
     [Authorize]
     public class VenueController : ControllerBase
@@ -23,7 +24,23 @@ namespace SurfTicket.Presentation.Controllers
             _sender = sender;
         }
 
-        [HttpPost("{merchantId}")]
+        [HttpGet("admin/{merchantId}")]
+        public async Task<IActionResult> GetAdminVenues(int merchantId)
+        {
+            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
+
+            GetAdminVenuesQuery query = new GetAdminVenuesQuery()
+            {
+                MerchantId = merchantId,
+                UserId = user.UserId,
+            };
+
+            var result = await _sender.Send(query);
+
+            return Ok(ApiResponseHelper.Success("Get admin venues successful", result));
+        }
+
+        [HttpPost("admin/{merchantId}")]
         public async Task<IActionResult> CreateVenue(int merchantId, [FromBody] CreateVenueBody body)
         {
             UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);

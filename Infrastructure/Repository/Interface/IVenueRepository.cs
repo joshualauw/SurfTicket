@@ -4,6 +4,6 @@ namespace SurfTicket.Infrastructure.Repository.Interface
 {
     public interface IVenueRepository
     {
-        public Task CreateAsync(VenueEntity entity, EntityAudit? audit = null);
+        public void Create(VenueEntity entity, EntityAudit? audit = null);
     }
 }

@@ -11,16 +11,23 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterCommandResponse>
     {
         private readonly UserManager<UserEntity> _userManager;
+        private readonly IConfiguration _configuration;
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IPlanRepository _planRepository;
-        private readonly IConfiguration _configuration;
+        private readonly IEfUnitOfWork _efUnitOfWork;
 
-        public RegisterCommandHandler(UserManager<UserEntity> userManager, IConfiguration configuration, ISubscriptionRepository subscriptionRepository, IPlanRepository planRepository)
+        public RegisterCommandHandler(
+            UserManager<UserEntity> userManager, 
+            IConfiguration configuration, 
+            ISubscriptionRepository subscriptionRepository, 
+            IPlanRepository planRepository,
+            IEfUnitOfWork efUnitOfWork)
         {
             _userManager = userManager;
             _configuration = configuration;
             _subscriptionRepository = subscriptionRepository;
             _planRepository = planRepository;
+            _efUnitOfWork = efUnitOfWork;
         }
 
         public async Task<RegisterCommandResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -79,7 +86,9 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                         IsActive = true
 
                     };
-                    await _subscriptionRepository.CreateAsync(subscription, audit);
+                    _subscriptionRepository.Create(subscription, audit);
+                    await _efUnitOfWork.SaveChangesAsync();
+
                 }
 
                 return new RegisterCommandResponse()

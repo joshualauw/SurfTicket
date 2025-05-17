@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Application.Features.Auth.Command.ChangePassword;
 using SurfTicket.Application.Features.Auth.Command.Login;
+using SurfTicket.Application.Features.Auth.Command.Me;
 using SurfTicket.Application.Features.Auth.Command.Register;
 using SurfTicket.Application.Features.Auth.Command.VerifyEmail;
 using SurfTicket.Infrastructure.Dto;
@@ -30,6 +31,13 @@ namespace SurfTicket.Presentation.Controllers
         public async Task<IActionResult> Me()
         {
             UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
+
+            MeCommand command = new MeCommand()
+            {
+                UserId = user.UserId,
+            };
+
+            await _sender.Send(command);
 
             return Ok(ApiResponseHelper.Success("Get me successful", user));
         }

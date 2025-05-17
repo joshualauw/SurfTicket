@@ -14,19 +14,19 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IMerchantRepository _merchantRepository;
-        private readonly AppDbContext _dbContext;
+        private readonly IEfUnitOfWork _efUnitOfWork;
 
         public CreateMerchantCommandHandler(UserManager<UserEntity> userManager, 
             ISubscriptionRepository subscriptionRepository, 
             IMerchantUserRepository merchantUserRepository, 
             IMerchantRepository merchantRepository, 
-            AppDbContext dbContext)
+            IEfUnitOfWork efUnitOfWork)
         {
             _userManager = userManager;
             _subscriptionRepository = subscriptionRepository;
             _merchantUserRepository = merchantUserRepository;
             _merchantRepository = merchantRepository;
-            _dbContext = dbContext;
+            _efUnitOfWork = efUnitOfWork;
         }
 
         public async Task<CreateMerchantCommandResponse> Handle(CreateMerchantCommand request, CancellationToken cancellationToken)
@@ -50,40 +50,41 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
                 throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED, "maximum number of merchant created");
             }
 
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            try
             {
-                try
+                await _efUnitOfWork.BeginTransactionAsync();
+
+                EntityAudit audit = new EntityAudit() { CreatedBy = user.Id };
+
+                MerchantEntity merchant = new MerchantEntity()
                 {
-                    EntityAudit audit = new EntityAudit() { CreatedBy = user.Id };
+                    Name = request.Name,
+                    Description = request.Description
+                };
+                _merchantRepository.Create(merchant, audit);
+                await _efUnitOfWork.SaveChangesAsync();
 
-                    MerchantEntity merchant = new MerchantEntity()
-                    {
-                        Name = request.Name,
-                        Description = request.Description
-                    };
-                    await _merchantRepository.CreateAsync(merchant, audit);
-
-                    MerchantUserEntity owner = new MerchantUserEntity()
-                    {
-                        MerchantId = merchant.Id,
-                        UserId = user.Id,
-                        Role = MerchantRole.OWNER
-                    };
-                    await _merchantUserRepository.CreateAsync(owner, audit);
-
-                    await transaction.CommitAsync();
-
-                    return new CreateMerchantCommandResponse()
-                    {
-                        MerchantId = merchant.Id
-                    };
-                }
-                catch (Exception ex)
+                MerchantUserEntity owner = new MerchantUserEntity()
                 {
-                    await transaction.RollbackAsync();
-                    throw new InternalSurfException(SurfErrorCode.INSERT_FAILED, "failed to create merchant", ex);
-                }
-            }  
+                    MerchantId = merchant.Id,
+                    UserId = user.Id,
+                    Role = MerchantRole.OWNER
+                };
+                _merchantUserRepository.Create(owner, audit);
+                await _efUnitOfWork.SaveChangesAsync();
+
+                await _efUnitOfWork.CommitAsync();
+
+                return new CreateMerchantCommandResponse()
+                {
+                    MerchantId = merchant.Id
+                };
+            }
+            catch (Exception ex)
+            {
+                await _efUnitOfWork.RollbackAsync();
+                throw new InternalSurfException(SurfErrorCode.INSERT_FAILED, "failed to create merchant", ex);
+            }    
         }
     }
 }
