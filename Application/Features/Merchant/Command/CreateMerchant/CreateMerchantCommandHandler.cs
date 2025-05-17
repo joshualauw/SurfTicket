@@ -30,7 +30,7 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
         }
 
         public async Task<CreateMerchantCommandResponse> Handle(CreateMerchantCommand request, CancellationToken cancellationToken)
-        {
+        {         
             UserEntity? user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null)
             {
@@ -43,9 +43,9 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
                 throw new NotFoundSurfException(SurfErrorCode.READ_FAILED, "active subscription not found");
             }
 
-            int merchantOwned = await _merchantUserRepository.GetUserMerchantCountAsync(user.Id);
+            int ownedMerchants = await _merchantRepository.GetMerchantsByRoleCountAsync(user.Id, MerchantRole.OWNER);
 
-            if (merchantOwned >= activeSubscription.Plan.Features.MaxOwnedMerchant)
+            if (ownedMerchants >= activeSubscription.Plan.Features.MaxOwnedMerchant)
             {
                 throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED, "maximum number of merchant created");
             }
@@ -54,12 +54,14 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
             {
                 try
                 {
+                    EntityAudit audit = new EntityAudit() { CreatedBy = user.Id };
+
                     MerchantEntity merchant = new MerchantEntity()
                     {
                         Name = request.Name,
                         Description = request.Description
                     };
-                    await _merchantRepository.CreateAsync(merchant);
+                    await _merchantRepository.CreateAsync(merchant, audit);
 
                     MerchantUserEntity owner = new MerchantUserEntity()
                     {
@@ -67,9 +69,7 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
                         UserId = user.Id,
                         Role = MerchantRole.OWNER
                     };
-                    await _merchantUserRepository.CreateAsync(owner);
-
-                    await _merchantUserRepository.AssignOwnerPermissionAsync(owner.Id);
+                    await _merchantUserRepository.CreateAsync(owner, audit);
 
                     await transaction.CommitAsync();
 
@@ -78,10 +78,10 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
                         MerchantId = merchant.Id
                     };
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    throw new InternalSurfException(SurfErrorCode.INSERT_FAILED, "failed to create merchant");
+                    throw new InternalSurfException(SurfErrorCode.INSERT_FAILED, "failed to create merchant", ex);
                 }
             }  
         }

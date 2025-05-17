@@ -58,32 +58,42 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                 throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
             }
 
-            var basicPlan = await _planRepository.GetPlanByCodeAsync(PlanCode.BASIC);
-            if (basicPlan != null)
-            {
-                SubscriptionEntity subscription = new SubscriptionEntity()
-                {
-                     PlanId = basicPlan.Id,
-                     UserId = user.Id,
-                     StartAt = DateTime.UtcNow,
-                     IsActive = true
-
-                };
-                await _subscriptionRepository.CreateAsync(subscription);
-            }
-
             var verifyCode = GenCodeHelper.GenerateCode(6);
+
             userData.VerifyCode = verifyCode;
 
             await _userManager.UpdateAsync(userData);
 
-            return new RegisterCommandResponse()
+            try
             {
-                Id = userData.Id,
-                Email = userData.Email,
-                Username = userData.UserName,
-                VerifyCode = verifyCode,
-            };
+                EntityAudit audit = new EntityAudit() { CreatedBy = userData.Id};
+
+                var basicPlan = await _planRepository.GetPlanByCodeAsync(PlanCode.BASIC);
+                if (basicPlan != null)
+                {
+                    SubscriptionEntity subscription = new SubscriptionEntity()
+                    {
+                        PlanId = basicPlan.Id,
+                        UserId = user.Id,
+                        StartAt = DateTime.UtcNow,
+                        IsActive = true
+
+                    };
+                    await _subscriptionRepository.CreateAsync(subscription, audit);
+                }
+
+                return new RegisterCommandResponse()
+                {
+                    Id = userData.Id,
+                    Email = userData.Email,
+                    Username = userData.UserName,
+                    VerifyCode = verifyCode,
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new InternalSurfException(SurfErrorCode.INSERT_FAILED, "failed to insert user plan", ex);
+            }
         }
     }
 }

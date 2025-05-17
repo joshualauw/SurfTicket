@@ -20,7 +20,7 @@
 
     public class InternalSurfException : SurfException
     {
-        public InternalSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 500) { }
+        public InternalSurfException(SurfErrorCode errorCode, string message, Exception ex) : base(errorCode, message, 500, ex) { }
     }
 
     public class BadRequestSurfException : SurfException

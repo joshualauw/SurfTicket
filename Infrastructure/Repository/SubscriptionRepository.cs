@@ -13,8 +13,13 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public async Task<SubscriptionEntity?> CreateAsync(SubscriptionEntity entity)
+        public async Task<SubscriptionEntity?> CreateAsync(SubscriptionEntity entity, EntityAudit? audit = null)
         {
+            if (audit != null && audit.CreatedBy != null)
+            {
+                entity.CreatedBy = audit.CreatedBy;
+            }
+
             _dbContext.Subscription.Add(entity);
             await _dbContext.SaveChangesAsync();
 

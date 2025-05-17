@@ -14,8 +14,13 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public async Task<MerchantEntity?> CreateAsync(MerchantEntity entity)
+        public async Task<MerchantEntity?> CreateAsync(MerchantEntity entity, EntityAudit? audit = null)
         {
+            if (audit != null && audit.CreatedBy != null)
+            {
+                entity.CreatedBy = audit.CreatedBy;
+            }
+                        
             _dbContext.Merchant.Add(entity);
             await _dbContext.SaveChangesAsync();
 
@@ -31,6 +36,13 @@ namespace SurfTicket.Infrastructure.Repository
                 .ToListAsync();
 
             return merchants;
+        }
+
+        public async Task<int> GetMerchantsByRoleCountAsync(string userId, MerchantRole role)
+        {
+            return await _dbContext.MerchantUser
+                .Where(mu => mu.UserId == userId && mu.Role == role)
+                .CountAsync();
         }
     }
 }

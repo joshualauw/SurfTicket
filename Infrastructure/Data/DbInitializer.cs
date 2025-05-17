@@ -43,19 +43,6 @@ namespace SurfTicket.Infrastructure.Data
                 );
                 await context.SaveChangesAsync();
             }
-
-            if (!context.PermissionAdmin.Any())
-            {
-                context.PermissionAdmin.AddRange(
-                    new PermissionAdminEntity() { Name = "Dashboard", Code = "dashboard" },
-                    new PermissionAdminEntity() { Name = "Venue", Code = "venue" },
-                    new PermissionAdminEntity() { Name = "Tickets", Code = "ticket" },
-                    new PermissionAdminEntity() { Name = "Scan", Code = "scan" },
-                    new PermissionAdminEntity() { Name = "Chat", Code = "chat" },
-                    new PermissionAdminEntity() { Name = "Settings", Code = "setting" }
-                );
-                await context.SaveChangesAsync();
-            }
         }
     }
 }
