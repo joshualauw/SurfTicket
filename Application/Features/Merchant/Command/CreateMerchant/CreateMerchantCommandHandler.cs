@@ -31,24 +31,20 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
 
         public async Task<CreateMerchantCommandResponse> Handle(CreateMerchantCommand request, CancellationToken cancellationToken)
         {         
-            UserEntity? user = await _userManager.FindByIdAsync(request.UserId);
+            var user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null)
             {
                 throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
             }
 
-            SubscriptionEntity? activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
+            var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
             if (activeSubscription == null)
             {
                 throw new NotFoundSurfException(SurfErrorCode.READ_FAILED, "active subscription not found");
             }
 
-            int ownedMerchants = await _merchantRepository.GetMerchantsByRoleCountAsync(user.Id, MerchantRole.OWNER);
-
-            if (ownedMerchants >= activeSubscription.Plan.Features.MaxOwnedMerchant)
-            {
-                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED, "maximum number of merchant created");
-            }
+            var ownedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(user.Id, MerchantRole.OWNER);
+            activeSubscription.EnsureCanCreateMerchant(ownedMerchants.Count);
 
             try
             {

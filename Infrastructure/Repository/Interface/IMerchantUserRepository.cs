@@ -7,6 +7,7 @@ namespace SurfTicket.Infrastructure.Repository.Interface
     {
         public void Create(MerchantUserEntity entity, EntityAudit? audit = null);
         public Task<MerchantUserEntity?> GetMerchantUserAsync(int merchantId, string userId);
-        public Task<bool> HasPermissionAsync(MerchantUserEntity entity, PermissionCode code, PermissionAccess access);
+        public Task<List<MerchantUserEntity>> GetMerchantByRoleAsync(string userId, MerchantRole role);
+        public Task<List<PermissionMenuEntity>> GetMerchantUserPermissionsAsync(int merchantUserId);
     }
 }

@@ -11,12 +11,17 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IVenueRepository _venueRepository;
         private readonly IEfUnitOfWork _efUnitOfWork;
+        private readonly IPermissionAdminRepository _permissionAdminRepository;
 
-        public CreateVenueCommandHandler(IMerchantUserRepository merchantUserRepository, IVenueRepository venueRepository, IEfUnitOfWork efUnitOfWork)
+        public CreateVenueCommandHandler(IMerchantUserRepository merchantUserRepository, 
+            IVenueRepository venueRepository, 
+            IEfUnitOfWork efUnitOfWork,
+            IPermissionAdminRepository permissionAdminRepository)
         {
             _merchantUserRepository = merchantUserRepository;
             _venueRepository = venueRepository;
             _efUnitOfWork = efUnitOfWork;
+            _permissionAdminRepository = permissionAdminRepository;
         }
 
         public async Task<CreateVenueCommandResponse> Handle(CreateVenueCommand request, CancellationToken cancellationToken)
@@ -24,14 +29,11 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, request.UserId);
             if (merchantUser == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.MERCHANT_VIOLATE_PERMISSION, "Merchant user not found");
+                throw new NotFoundSurfException(SurfErrorCode.MERCHANT_USER_NOT_FOUND, "Merchant user not found");
             }
 
-            var hasPermission = await _merchantUserRepository.HasPermissionAsync(merchantUser, PermissionCode.VENUE, PermissionAccess.INSERT);
-            if (!hasPermission)
-            {
-                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_VIOLATE_PERMISSION, "Merchant user does not have access");
-            }
+            var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
+            merchantUser.EnsureHasPermission(permission, PermissionAccess.INSERT);
 
             try
             {

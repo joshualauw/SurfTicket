@@ -23,33 +23,27 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext.MerchantUser.Add(entity);
         }
 
-        public async Task<MerchantUserEntity?> GetMerchantUserAsync(int merchantId, string userId)
+        public async Task<List<MerchantUserEntity>> GetMerchantByRoleAsync(string userId, MerchantRole role)
         {
-            return await _dbContext.MerchantUser.FirstOrDefaultAsync(mu => mu.MerchantId == merchantId && mu.UserId == userId);
+            return await _dbContext.MerchantUser
+            .Where(mu => mu.UserId == userId && mu.Role == role)
+            .ToListAsync();
         }
 
-        public async Task<bool> HasPermissionAsync(MerchantUserEntity entity, PermissionCode code, PermissionAccess access)
+        public async Task<MerchantUserEntity?> GetMerchantUserAsync(int merchantId, string userId)
         {
-            if (entity.Role == MerchantRole.OWNER)
-            {
-                return true;
-            }
-            else if (entity.Role == MerchantRole.COLLABORATOR)
-            {
-                var permission = await _dbContext.PermissionAdmin.FirstOrDefaultAsync(p => p.Code == code);
-                if (permission == null)
-                {
-                    return false;
-                }
+            return await _dbContext.MerchantUser
+            .Where(mu => mu.MerchantId == merchantId && mu.UserId == userId)
+            .Include(mu => mu.PermissionMenus)
+            .FirstOrDefaultAsync();
+        }
 
-                return await _dbContext.PermissionMenu
-                .Where(pm => pm.MerchantUserId == entity.Id && pm.PermissionAdminId == permission.Id && pm.Access == access)
-                .AnyAsync();
-            }
-            else
-            {
-                return false;
-            }
+        public async Task<List<PermissionMenuEntity>> GetMerchantUserPermissionsAsync(int merchantUserId)
+        {
+            return await _dbContext.PermissionMenu
+            .Where(pm => pm.MerchantUserId == merchantUserId)
+            .Include(pm => pm.PermissionAdmin)
+            .ToListAsync();
         }
     }
 }

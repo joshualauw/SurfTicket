@@ -84,11 +84,9 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                         UserId = user.Id,
                         StartAt = DateTime.UtcNow,
                         IsActive = true
-
                     };
                     _subscriptionRepository.Create(subscription, audit);
                     await _efUnitOfWork.SaveChangesAsync();
-
                 }
 
                 return new RegisterCommandResponse()

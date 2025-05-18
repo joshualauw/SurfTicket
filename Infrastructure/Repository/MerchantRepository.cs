@@ -25,19 +25,12 @@ namespace SurfTicket.Infrastructure.Repository
         public async Task<List<MerchantEntity>> GetMerchantsByRoleAsync(string userId, MerchantRole role)
         {
             var merchants = await _dbContext.MerchantUser
-                .Where(mu => mu.UserId == userId && mu.Role == role)
-                .Include(mu => mu.Merchant)
-                .Select(mu => mu.Merchant)
-                .ToListAsync();
+            .Where(mu => mu.UserId == userId && mu.Role == role)
+            .Include(mu => mu.Merchant)
+            .Select(mu => mu.Merchant)
+            .ToListAsync();
 
             return merchants;
-        }
-
-        public async Task<int> GetMerchantsByRoleCountAsync(string userId, MerchantRole role)
-        {
-            return await _dbContext.MerchantUser
-                .Where(mu => mu.UserId == userId && mu.Role == role)
-                .CountAsync();
         }
     }
 }

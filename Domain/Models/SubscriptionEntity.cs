@@ -1,4 +1,6 @@
-﻿namespace SurfTicket.Domain.Models
+﻿using SurfTicket.Application.Exceptions;
+
+namespace SurfTicket.Domain.Models
 {
     public class SubscriptionEntity : BaseEntity
     {
@@ -10,5 +12,13 @@
         public DateTime? EndAt { get; set; }
         public DateTime? CanceledAt { get; set; }
         public bool IsActive { get; set; }
+
+        public void EnsureCanCreateMerchant(int ownedMerchantCount)
+        {
+            if (Plan.Features.MaxOwnedMerchant <= ownedMerchantCount)
+            {
+                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED, "Maximum created merchants allowed");
+            }
+        }
     }
 }

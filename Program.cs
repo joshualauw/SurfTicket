@@ -112,6 +112,7 @@ builder.Services.AddScoped<IPlanRepository, PlanRepository>();
 builder.Services.AddScoped<IMerchantRepository, MerchantRepository>();
 builder.Services.AddScoped<IMerchantUserRepository, MerchantUserRepository>();
 builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+builder.Services.AddScoped<IPermissionAdminRepository, PermissionAdminRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
