@@ -15,6 +15,7 @@ using SurfTicket.Application.Exceptions;
 using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Infrastructure.Repository;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,12 +66,19 @@ builder.Services
                 context.HandleResponse();
                 context.Response.StatusCode = 401;
                 context.Response.ContentType = "application/json";
-                return context.Response.WriteAsync(JsonSerializer.Serialize(ApiResponseHelper.Error("Unauthorized", new ErrorDetail()
+
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver(),
+                    Converters = { new StringEnumConverter() }
+                };
+
+                return context.Response.WriteAsync(JsonConvert.SerializeObject(ApiResponseHelper.Error("Unauthorized", new ErrorDetail()
                 {
                     ErrorCode = (int)SurfErrorCode.UNAUTHORIZED,
                     ErrorMessage = "Unauthorized"
-                }, 401)));
-            }
+                }, 401), settings));
+            },
         };
     });
 

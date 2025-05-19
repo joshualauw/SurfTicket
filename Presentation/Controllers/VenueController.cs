@@ -37,7 +37,7 @@ namespace SurfTicket.Presentation.Controllers
 
             var result = await _sender.Send(query);
 
-            return Ok(ApiResponseHelper.Success("Get admin venues successful", result.Venues));
+            return Ok(ApiResponseHelper.Success("Get admin venues successful", result));
         }
 
         [HttpPost("admin/{merchantId}")]
