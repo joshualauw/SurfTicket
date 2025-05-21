@@ -37,8 +37,6 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
 
             try
             {
-                EntityAudit audit = new EntityAudit() { CreatedBy = request.UserId };
-
                 VenueEntity venue = new VenueEntity()
                 {
                     MerchantId = request.MerchantId,
@@ -46,7 +44,7 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
                     Description = request.Description,
                 };
 
-                _venueRepository.Create(venue, audit);
+                _venueRepository.Create(venue);
                 await _efUnitOfWork.SaveChangesAsync();
 
                 return new CreateVenueCommandResponse

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SurfTicket.Application.Common;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Application.Features.Venue.Query.GetAdminVenues.Dto;
 using SurfTicket.Domain.Enums;
@@ -7,7 +8,7 @@ using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
 {
-    public class GetAdminVenuesQueryHandler : IRequestHandler<GetAdminVenuesQuery, GetAdminVenuesQueryResponse>
+    public class GetAdminVenuesQueryHandler : IRequestHandler<GetAdminVenuesQuery, PagedResult<AdminVenueItem>>
     {
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IPermissionAdminRepository _permissionAdminRepository;
@@ -22,7 +23,7 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
             _venueRepository = venueRepository;
         }
 
-        public async Task<GetAdminVenuesQueryResponse> Handle(GetAdminVenuesQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<AdminVenueItem>> Handle(GetAdminVenuesQuery request, CancellationToken cancellationToken)
         {
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, request.UserId);
             if (merchantUser == null)
@@ -33,16 +34,21 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
             merchantUser.EnsureHasPermission(permission, PermissionAccess.VIEW);
 
-            var venues = await _venueRepository.GetAdminVenues(request.MerchantId);
-            var adminVenues = venues.Select(v => new AdminVenueItem()
+            var venues = await _venueRepository.GetAdminVenues(request.MerchantId)
+            .ToPagedResultAsync(request.Pagination.Page, request.Pagination.Size, cancellationToken);
+
+            var adminVenues = venues.Items.Select(v => new AdminVenueItem()
             {
                 Id = v.Id,
                 Name = v.Name,
                 LogoUrl = v.LogoUrl,
             }).ToList();
 
-            return new GetAdminVenuesQueryResponse {
-                Venues = adminVenues
+            return new PagedResult<AdminVenueItem> {
+                Items = adminVenues,
+                TotalItems = venues.TotalItems,
+                Page = venues.Page,
+                Size = venues.Size
             };
         }
     }

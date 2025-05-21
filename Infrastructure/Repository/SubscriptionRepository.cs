@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Data;
-using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Infrastructure.Repository
@@ -14,10 +13,8 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public void Create(SubscriptionEntity entity, EntityAudit? audit = null)
+        public void Create(SubscriptionEntity entity)
         {
-            AuditHelper.CreatedBy(entity, audit);
-
             _dbContext.Subscription.Add(entity);
         }
 

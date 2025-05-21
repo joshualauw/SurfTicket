@@ -2,7 +2,6 @@
 using SurfTicket.Application.Features.Venue.Query.GetAdminVenues.Dto;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Data;
-using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Infrastructure.Repository
@@ -16,18 +15,14 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public void Create(VenueEntity entity, EntityAudit? audit = null)
+        public void Create(VenueEntity entity)
         {
-            AuditHelper.CreatedBy(entity, audit);
-
             _dbContext.Venue.Add(entity);
         }
 
-        public async Task<List<VenueEntity>> GetAdminVenues(int merchantId)
+        public IQueryable<VenueEntity> GetAdminVenues(int merchantId)
         {
-            return await _dbContext.Venue
-            .Where(v => v.MerchantId == merchantId)
-            .ToListAsync();
+            return _dbContext.Venue.Where(v => v.MerchantId == merchantId).AsNoTracking();
         }
     }
 }

@@ -2,7 +2,6 @@
 using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Data;
-using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Infrastructure.Repository
@@ -16,10 +15,8 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public void Create(MerchantUserEntity entity, EntityAudit? audit = null)
+        public void Create(MerchantUserEntity entity)
         {
-            AuditHelper.CreatedBy(entity, audit);
-
             _dbContext.MerchantUser.Add(entity);
         }
 

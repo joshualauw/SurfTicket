@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Application\Features\Subscription\Query\" />
+    <Folder Include="Application\Services\" />
     <Folder Include="Presentation\Filters\" />
     <Folder Include="Presentation\Web\" />
   </ItemGroup>

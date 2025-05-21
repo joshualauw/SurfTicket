@@ -4,7 +4,6 @@ using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Repository.Interface;
-using SurfTicket.Infrastructure.Data;
 
 namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
 {
@@ -50,25 +49,15 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
             {
                 await _efUnitOfWork.BeginTransactionAsync();
 
-                EntityAudit audit = new EntityAudit() { CreatedBy = user.Id };
-
                 MerchantEntity merchant = new MerchantEntity()
                 {
                     Name = request.Name,
-                    Description = request.Description
+                    Description = request.Description,
                 };
-                _merchantRepository.Create(merchant, audit);
-                await _efUnitOfWork.SaveChangesAsync();
+                merchant.AddOwner(request.UserId);
+                _merchantRepository.Create(merchant);
 
-                MerchantUserEntity owner = new MerchantUserEntity()
-                {
-                    MerchantId = merchant.Id,
-                    UserId = user.Id,
-                    Role = MerchantRole.OWNER
-                };
-                _merchantUserRepository.Create(owner, audit);
                 await _efUnitOfWork.SaveChangesAsync();
-
                 await _efUnitOfWork.CommitAsync();
 
                 return new CreateMerchantCommandResponse()

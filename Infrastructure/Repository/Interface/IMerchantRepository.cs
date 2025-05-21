@@ -5,7 +5,7 @@ namespace SurfTicket.Infrastructure.Repository.Interface
 {
     public interface IMerchantRepository
     {
-        public void Create(MerchantEntity entity, EntityAudit? audit = null);
+        public void Create(MerchantEntity entity);
         public Task<List<MerchantEntity>> GetMerchantsByRoleAsync(string userId, MerchantRole role);
     }
 }

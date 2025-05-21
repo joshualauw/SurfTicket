@@ -73,8 +73,6 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
 
             try
             {
-                EntityAudit audit = new EntityAudit() { CreatedBy = userData.Id};
-
                 var basicPlan = await _planRepository.GetPlanByCodeAsync(PlanCode.BASIC);
                 if (basicPlan != null)
                 {
@@ -85,7 +83,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                         StartAt = DateTime.UtcNow,
                         IsActive = true
                     };
-                    _subscriptionRepository.Create(subscription, audit);
+                    _subscriptionRepository.Create(subscription);
                     await _efUnitOfWork.SaveChangesAsync();
                 }
 
