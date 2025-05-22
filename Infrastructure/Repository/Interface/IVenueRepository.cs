@@ -1,11 +1,11 @@
-﻿using SurfTicket.Application.Features.Venue.Query.GetAdminVenues.Dto;
-using SurfTicket.Domain.Models;
+﻿using SurfTicket.Domain.Models;
+using SurfTicket.Infrastructure.Common;
 
 namespace SurfTicket.Infrastructure.Repository.Interface
 {
     public interface IVenueRepository
     {
         public void Create(VenueEntity entity);
-        public IQueryable<VenueEntity> GetAdminVenues(int merchantId);
+        public Task<PagedResult<VenueEntity>> GetPagedAdminVenues(int merchantId, int page, int size);
     }
 }

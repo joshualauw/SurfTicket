@@ -1,4 +1,4 @@
-﻿namespace SurfTicket.Application.Common
+﻿namespace SurfTicket.Infrastructure.Common
 {
     public class PagedResult<T>
     {
@@ -6,6 +6,6 @@
         public int TotalItems { get; set; }
         public int Page { get; set; }
         public int Size { get; set; }
-        public int TotalPages => (int) Math.Ceiling((double) TotalItems / Size);
+        public int TotalPages => (int)Math.Ceiling((double)TotalItems / Size);
     }
 }

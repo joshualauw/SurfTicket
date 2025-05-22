@@ -1,14 +1,13 @@
 ﻿using MediatR;
-using SurfTicket.Application.Common;
+using SurfTicket.Infrastructure.Common;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Application.Features.Venue.Query.GetAdminVenues.Dto;
 using SurfTicket.Domain.Enums;
-using SurfTicket.Infrastructure.Repository;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
 {
-    public class GetAdminVenuesQueryHandler : IRequestHandler<GetAdminVenuesQuery, PagedResult<AdminVenueItem>>
+    public class GetAdminVenuesQueryHandler : IRequestHandler<GetAdminVenuesQuery, GetAdminVenuesQueryResponse>
     {
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IPermissionAdminRepository _permissionAdminRepository;
@@ -23,7 +22,7 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
             _venueRepository = venueRepository;
         }
 
-        public async Task<PagedResult<AdminVenueItem>> Handle(GetAdminVenuesQuery request, CancellationToken cancellationToken)
+        public async Task<GetAdminVenuesQueryResponse> Handle(GetAdminVenuesQuery request, CancellationToken cancellationToken)
         {
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, request.UserId);
             if (merchantUser == null)
@@ -32,10 +31,9 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
             }
 
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
-            merchantUser.EnsureHasPermission(permission, PermissionAccess.VIEW);
+            merchantUser.EnsureHasPermission(permission, PermissionAccess.VIEW);    
 
-            var venues = await _venueRepository.GetAdminVenues(request.MerchantId)
-            .ToPagedResultAsync(request.Pagination.Page, request.Pagination.Size, cancellationToken);
+            var venues = await _venueRepository.GetPagedAdminVenues(request.MerchantId, request.Pagination.Page, request.Pagination.Size);
 
             var adminVenues = venues.Items.Select(v => new AdminVenueItem()
             {
@@ -44,11 +42,15 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
                 LogoUrl = v.LogoUrl,
             }).ToList();
 
-            return new PagedResult<AdminVenueItem> {
-                Items = adminVenues,
-                TotalItems = venues.TotalItems,
-                Page = venues.Page,
-                Size = venues.Size
+            return new GetAdminVenuesQueryResponse()
+            {
+                Venues = new PagedResult<AdminVenueItem>()
+                {
+                    Items = adminVenues,
+                    TotalItems = venues.TotalItems,
+                    Page = venues.Page,
+                    Size = venues.Size
+                }
             };
         }
     }

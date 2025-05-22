@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SurfTicket.Application.Features.Venue.Query.GetAdminVenues.Dto;
 using SurfTicket.Domain.Models;
+using SurfTicket.Infrastructure.Common;
 using SurfTicket.Infrastructure.Data;
 using SurfTicket.Infrastructure.Repository.Interface;
 
@@ -20,9 +20,11 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext.Venue.Add(entity);
         }
 
-        public IQueryable<VenueEntity> GetAdminVenues(int merchantId)
+        public async Task<PagedResult<VenueEntity>> GetPagedAdminVenues(int merchantId, int page, int size)
         {
-            return _dbContext.Venue.Where(v => v.MerchantId == merchantId).AsNoTracking();
+            return await _dbContext.Venue
+            .Where(v => v.MerchantId == merchantId)
+            .ToPagedResultAsync(page, size);
         }
     }
 }

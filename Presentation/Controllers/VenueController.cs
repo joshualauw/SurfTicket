@@ -1,13 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SurfTicket.Application.Common;
-using SurfTicket.Application.Features.Merchant.Command.CreateMerchant;
+using SurfTicket.Infrastructure.Common;
 using SurfTicket.Application.Features.Venue.Command.CreateVenue;
 using SurfTicket.Application.Features.Venue.Query.GetAdminVenues;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
-using SurfTicket.Presentation.Dto;
 using SurfTicket.Presentation.Dto.Venue;
 using SurfTicket.Presentation.Helpers;
 
@@ -27,7 +25,7 @@ namespace SurfTicket.Presentation.Controllers
         }
 
         [HttpGet("admin/{merchantId}")]
-        public async Task<IActionResult> GetAdminVenues(int merchantId, [FromQuery] int? page, int? size)
+        public async Task<IActionResult> GetAdminVenues(int merchantId, [FromQuery] PaginationQuery pagination)
         {
             UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
 
@@ -35,19 +33,13 @@ namespace SurfTicket.Presentation.Controllers
             {
                 MerchantId = merchantId,
                 UserId = user.UserId,
+                Pagination = pagination
             };
-            if (page != null && size != null)
-            {
-                query.Pagination = new PaginationQuery()
-                {
-                    Page = page.Value,
-                    Size = size.Value
-                };
-            }
 
             var result = await _sender.Send(query);
+            var mappedResult = result.Venues;
 
-            return Ok(ApiResponseHelper.Success("Get admin venues successful", result));
+            return Ok(ApiResponseHelper.Success("Get admin venues successful", mappedResult));
         }
 
         [HttpPost("admin/{merchantId}")]

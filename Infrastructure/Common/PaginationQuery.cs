@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SurfTicket.Application.Common
+namespace SurfTicket.Infrastructure.Common
 {
     public class PaginationQuery
     {
