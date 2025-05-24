@@ -25,7 +25,7 @@ namespace SurfTicket.Presentation.Controllers
         }
 
         [HttpGet("admin/{merchantId}")]
-        public async Task<IActionResult> GetAdminVenues(int merchantId, [FromQuery] PaginationQuery pagination)
+        public async Task<IActionResult> GetAdminVenues(int merchantId, [FromQuery] FilterQuery filter)
         {
             UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
 
@@ -33,7 +33,7 @@ namespace SurfTicket.Presentation.Controllers
             {
                 MerchantId = merchantId,
                 UserId = user.UserId,
-                Pagination = pagination
+                Filter = filter
             };
 
             var result = await _sender.Send(query);

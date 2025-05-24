@@ -49,15 +49,11 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
             {
                 await _efUnitOfWork.BeginTransactionAsync();
 
-                MerchantEntity merchant = new MerchantEntity()
-                {
-                    Name = request.Name,
-                    Description = request.Description,
-                };
-                merchant.AddOwner(request.UserId);
-                _merchantRepository.Create(merchant);
+                MerchantEntity merchant = MerchantEntity.Create(request.Name, request.Description, user.Id);
 
+                _merchantRepository.Create(merchant);
                 await _efUnitOfWork.SaveChangesAsync();
+
                 await _efUnitOfWork.CommitAsync();
 
                 return new CreateMerchantCommandResponse()

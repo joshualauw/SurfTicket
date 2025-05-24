@@ -8,7 +8,6 @@ using SurfTicket.Presentation.Attributes;
 using SurfTicket.Presentation.Helpers;
 using SurfTicket.Presentation.Middlewares;
 using System.Text;
-using System.Text.Json;
 using SurfTicket.Presentation.Dto;
 using Microsoft.OpenApi.Models;
 using SurfTicket.Application.Exceptions;
@@ -20,7 +19,11 @@ using Newtonsoft.Json;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options => {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection"), npgsqlOptions =>
+    {
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory");
+    })
+    .UseSnakeCaseNamingConvention();
 });
 
 builder.Services.AddIdentity<UserEntity, IdentityRole>()

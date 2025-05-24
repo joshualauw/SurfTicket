@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Drawing;
 
 namespace SurfTicket.Infrastructure.Common
 {
@@ -12,13 +13,20 @@ namespace SurfTicket.Infrastructure.Common
                 .Take(size)
                 .ToListAsync();
 
-            return new PagedResult<T>
+            var pagedResult = new PagedResult<T>
             {
                 Items = items,
                 TotalItems = totalItems,
                 Page = page,
-                Size = size
+                Size = size,
             };
+
+            if (page > pagedResult.TotalPages)
+            {
+                pagedResult.Page = pagedResult.TotalPages;
+            }
+
+            return pagedResult;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
             merchantUser.EnsureHasPermission(permission, PermissionAccess.VIEW);    
 
-            var venues = await _venueRepository.GetPagedAdminVenues(request.MerchantId, request.Pagination.Page, request.Pagination.Size);
+            var venues = await _venueRepository.GetAdminVenues(request.MerchantId, request.Filter);
 
             var adminVenues = venues.Items.Select(v => new AdminVenueItem()
             {

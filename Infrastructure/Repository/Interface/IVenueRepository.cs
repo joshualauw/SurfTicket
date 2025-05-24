@@ -6,6 +6,6 @@ namespace SurfTicket.Infrastructure.Repository.Interface
     public interface IVenueRepository
     {
         public void Create(VenueEntity entity);
-        public Task<PagedResult<VenueEntity>> GetPagedAdminVenues(int merchantId, int page, int size);
+        public Task<PagedResult<VenueEntity>> GetAdminVenues(int merchantId, FilterQuery filter);
     }
 }

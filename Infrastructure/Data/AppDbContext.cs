@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
+using System.Reflection.Emit;
 
 namespace SurfTicket.Infrastructure.Data
 {
@@ -28,19 +29,14 @@ namespace SurfTicket.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
-            // Table Naming
-            builder.Entity<MerchantEntity>().ToTable("Merchant");
-            builder.Entity<TicketEntity>().ToTable("Ticket");
-            builder.Entity<TicketBuyWindowEntity>().ToTable("TicketBuyWindow");
-            builder.Entity<TicketScanWindowEntity>().ToTable("TicketScanWindow");
-            builder.Entity<TicketEntryEntity>().ToTable("TicketEntry");
-            builder.Entity<TicketPurchaseEntity>().ToTable("TicketPurchase");
-            builder.Entity<VenueEntity>().ToTable("Venue");
-            builder.Entity<PermissionAdminEntity>().ToTable("PermissionAdmin");
-            builder.Entity<PermissionMenuEntity>().ToTable("PermissionMenu");
-            builder.Entity<MerchantUserEntity>().ToTable("MerchantUser");
-            builder.Entity<PlanEntity>().ToTable("Plan");
-            builder.Entity<SubscriptionEntity>().ToTable("Subscription");
+            //Ovveride Identity table names
+            builder.Entity<UserEntity>().ToTable("users_entity");
+            builder.Entity<IdentityRole>().ToTable("roles_entity");
+            builder.Entity<IdentityUserRole<string>>().ToTable("user_roles_entity");
+            builder.Entity<IdentityUserClaim<string>>().ToTable("user_claims_entity");
+            builder.Entity<IdentityUserLogin<string>>().ToTable("user_logins_entity");
+            builder.Entity<IdentityRoleClaim<string>>().ToTable("role_claims_entity");
+            builder.Entity<IdentityUserToken<string>>().ToTable("user_tokens_entity");
 
             // Composite Keys
             builder.Entity<MerchantUserEntity>().HasIndex(mu => new {mu.MerchantId, mu.UserId}).IsUnique();
@@ -49,26 +45,11 @@ namespace SurfTicket.Infrastructure.Data
             builder.Entity<PlanEntity>().OwnsOne(p => p.Features, f => { f.ToJson(); });
 
             // Field Enum
-            builder.Entity<MerchantUserEntity>().Property(p => p.Role).HasConversion(
-                v => v.ToString(),
-                v => (MerchantRole) Enum.Parse(typeof (MerchantRole), v)
-            );
-            builder.Entity<PermissionMenuEntity>().Property(p => p.Access).HasConversion(
-                v => v.ToString(),
-                v => (PermissionAccess) Enum.Parse(typeof(PermissionAccess), v)
-            );
-            builder.Entity<PermissionAdminEntity>().Property(p => p.Code).HasConversion(
-                v => v.ToString(),
-                v => (PermissionCode) Enum.Parse(typeof (PermissionCode), v)
-            );
-            builder.Entity<TicketPurchaseEntity>().Property(p => p.Status).HasConversion(
-                v => v.ToString(),
-                v => (TicketInvoiceStatus) Enum.Parse(typeof(TicketInvoiceStatus), v)
-            );
-            builder.Entity<PlanEntity>().Property(p => p.Code).HasConversion(
-                v => v.ToString(),
-                v => (PlanCode) Enum.Parse(typeof(PlanCode), v)
-            );
+            builder.Entity<MerchantUserEntity>().Property(p => p.Role).HasConversion<string>();
+            builder.Entity<PermissionMenuEntity>().Property(p => p.Access).HasConversion<string>();
+            builder.Entity<PermissionAdminEntity>().Property(p => p.Code).HasConversion<string>();
+            builder.Entity<TicketPurchaseEntity>().Property(p => p.Status).HasConversion<string>();
+            builder.Entity<PlanEntity>().Property(p => p.Code).HasConversion<string>();
         }
     }
 }

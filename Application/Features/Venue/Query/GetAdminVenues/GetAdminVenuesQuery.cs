@@ -7,6 +7,6 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
     {
         public string UserId { get; set; }
         public int MerchantId { get; set; }
-        public PaginationQuery Pagination { get; set; }
+        public FilterQuery Filter { get; set; }
     }
 }
