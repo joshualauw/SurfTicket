@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Infrastructure\Migrations\**" />
+    <Content Remove="Infrastructure\Migrations\**" />
+    <EmbeddedResource Remove="Infrastructure\Migrations\**" />
+    <None Remove="Infrastructure\Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EFCore.NamingConventions" Version="8.0.0" />
     <PackageReference Include="MediatR" Version="12.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
@@ -26,7 +33,6 @@
   <ItemGroup>
     <Folder Include="Application\Features\Subscription\Query\" />
     <Folder Include="Application\Services\" />
-    <Folder Include="Infrastructure\Migrations\" />
     <Folder Include="Presentation\Filters\" />
     <Folder Include="Presentation\Web\" />
   </ItemGroup>

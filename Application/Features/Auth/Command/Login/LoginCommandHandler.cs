@@ -56,7 +56,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Login
             var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
             if (activeSubscription == null)
             {
-                throw new BadRequestSurfException(SurfErrorCode.READ_FAILED, "User have no active subscriptions");
+                throw new BadRequestSurfException(SurfErrorCode.SUBSCRIPTION_ISSUE, "User have no active subscriptions");
             }
 
             var token = UserJwtHelper.GenerateJwtToken(_configuration, new UserJwtPayload()

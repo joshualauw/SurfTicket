@@ -20,6 +20,11 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext.Venue.Add(entity);
         }
 
+        public void Remove(VenueEntity entity)
+        {
+           _dbContext.Venue.Remove(entity);
+        }
+
         public async Task<Common.PagedResult<VenueEntity>> GetAdminVenues(int merchantId, FilterQuery filter)
         {
             var query = _dbContext.Venue.Where(v => v.MerchantId == merchantId);
@@ -41,6 +46,11 @@ namespace SurfTicket.Infrastructure.Repository
             }
 
             return await query.ToPagedResultAsync(filter.Page, filter.Size);
+        }
+
+        public async Task<VenueEntity?> GetAsync(int venueId)
+        {
+            return await _dbContext.Venue.FindAsync(venueId);
         }
     }
 }

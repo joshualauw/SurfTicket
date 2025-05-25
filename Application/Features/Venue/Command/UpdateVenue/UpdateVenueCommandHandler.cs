@@ -1,20 +1,19 @@
 ﻿using MediatR;
 using SurfTicket.Application.Exceptions;
-using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Domain.Enums;
-using SurfTicket.Domain.Models;
+using SurfTicket.Infrastructure.Repository.Interface;
 
-namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
+namespace SurfTicket.Application.Features.Venue.Command.UpdateVenue
 {
-    public class CreateVenueCommandHandler : IRequestHandler<CreateVenueCommand, CreateVenueCommandResponse>
+    public class UpdateVenueCommandHandler : IRequestHandler<UpdateVenueCommand, UpdateVenueCommandResponse>
     {
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IVenueRepository _venueRepository;
         private readonly IEfUnitOfWork _efUnitOfWork;
         private readonly IPermissionAdminRepository _permissionAdminRepository;
 
-        public CreateVenueCommandHandler(IMerchantUserRepository merchantUserRepository, 
-            IVenueRepository venueRepository, 
+        public UpdateVenueCommandHandler(IMerchantUserRepository merchantUserRepository,
+            IVenueRepository venueRepository,
             IEfUnitOfWork efUnitOfWork,
             IPermissionAdminRepository permissionAdminRepository)
         {
@@ -24,7 +23,7 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
             _permissionAdminRepository = permissionAdminRepository;
         }
 
-        public async Task<CreateVenueCommandResponse> Handle(CreateVenueCommand request, CancellationToken cancellationToken)
+        public async Task<UpdateVenueCommandResponse> Handle(UpdateVenueCommand request, CancellationToken cancellationToken)
         {
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, request.UserId);
             if (merchantUser == null)
@@ -33,24 +32,18 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
             }
 
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
-            merchantUser.EnsureHasPermission(permission, PermissionAccess.INSERT);
+            merchantUser.EnsureHasPermission(permission, PermissionAccess.UPDATE);
 
-            try
+            var venue = await _venueRepository.GetAsync(request.VenueId);
+            if (venue == null)
             {
-                var venue = VenueEntity.Create(request.MerchantId, request.Name, request.Description);
-                _venueRepository.Create(venue);
-
-                await _efUnitOfWork.SaveChangesAsync();
-
-                return new CreateVenueCommandResponse
-                {
-                    VenueId = venue.Id,
-                };
+                throw new NotFoundSurfException(SurfErrorCode.VENUE_NOT_FOUND, "Venue not found");
             }
-            catch (Exception ex)
-            {
-                throw new InternalSurfException(SurfErrorCode.VENUE_CREATE_FAILED, "failed to create venue", ex);
-            }
+
+            venue.Update(request.Name, request.Description);
+            await _efUnitOfWork.SaveChangesAsync();
+
+            return new UpdateVenueCommandResponse();
         }
     }
 }

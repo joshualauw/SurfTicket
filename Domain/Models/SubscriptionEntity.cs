@@ -17,7 +17,7 @@ namespace SurfTicket.Domain.Models
         {
             if (Plan.Features.MaxOwnedMerchant <= ownedMerchantCount)
             {
-                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED, "Maximum created merchants allowed");
+                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_EXCEED_LIMIT, "Maximum created merchants allowed");
             }
         }
     }

@@ -22,9 +22,9 @@ namespace SurfTicket.Domain.Models
                     new MerchantUserEntity()
                     {
                         UserId = userId,
-                        Role = MerchantRole.OWNER
+                        Role = MerchantRole.OWNER,
                     }
-                }
+                },
             };
         }
     }

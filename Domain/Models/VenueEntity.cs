@@ -10,5 +10,21 @@
         public string Description { get; set; }
         public string? LogoUrl { get; set; }
         public List<TicketEntity> Tickets { get; set; }
+
+        public static VenueEntity Create(int merchantId, string name, string description)
+        {
+            return new VenueEntity()
+            {
+                MerchantId = merchantId,
+                Name = name,
+                Description = description
+            };
+        }
+
+        public void Update(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
     }
 }

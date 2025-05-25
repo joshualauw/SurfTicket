@@ -41,7 +41,7 @@ namespace SurfTicket.Application.Features.Auth.Command.ChangePassword
                     errors += $"#{error.Code} - {error.Description}\n";
                 }
 
-                throw new UnprocessableSurfException(SurfErrorCode.UPDATE_FAILED, errors);
+                throw new UnprocessableSurfException(SurfErrorCode.UNAUTHORIZED, errors);
             }
 
             return new ChangePasswordCommandResponse();

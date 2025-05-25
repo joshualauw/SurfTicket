@@ -19,6 +19,11 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext.Merchant.Add(entity);
         }
 
+        public async Task<MerchantEntity?> Get(int merchantId)
+        {
+            return await _dbContext.Merchant.FindAsync(merchantId);
+        }
+
         public async Task<List<MerchantEntity>> GetMerchantsByRoleAsync(string userId, MerchantRole role)
         {
             var merchants = await _dbContext.MerchantUser

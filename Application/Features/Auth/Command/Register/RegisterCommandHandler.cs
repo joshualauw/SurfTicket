@@ -56,7 +56,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                     }
                 }
 
-                throw new UnprocessableSurfException(SurfErrorCode.INSERT_FAILED, errors);
+                throw new UnprocessableSurfException(SurfErrorCode.UNAUTHORIZED, errors);
             }
 
             var userData = await _userManager.FindByEmailAsync(request.Email);
@@ -97,7 +97,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
             }
             catch (Exception ex)
             {
-                throw new InternalSurfException(SurfErrorCode.INSERT_FAILED, "failed to insert user plan", ex);
+                throw new InternalSurfException(SurfErrorCode.SUBSCRIPTION_CREATE_FAILED, "failed to insert user plan", ex);
             }
         }
     }

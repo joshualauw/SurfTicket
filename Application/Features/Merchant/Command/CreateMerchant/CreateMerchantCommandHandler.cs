@@ -39,7 +39,7 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
             var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
             if (activeSubscription == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.READ_FAILED, "active subscription not found");
+                throw new NotFoundSurfException(SurfErrorCode.SUBSCRIPTION_ISSUE, "active subscription not found");
             }
 
             var ownedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(user.Id, MerchantRole.OWNER);
@@ -64,7 +64,7 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
             catch (Exception ex)
             {
                 await _efUnitOfWork.RollbackAsync();
-                throw new InternalSurfException(SurfErrorCode.INSERT_FAILED, "failed to create merchant", ex);
+                throw new InternalSurfException(SurfErrorCode.MERCHANT_CREATE_FAILED, "failed to create merchant", ex);
             }    
         }
     }

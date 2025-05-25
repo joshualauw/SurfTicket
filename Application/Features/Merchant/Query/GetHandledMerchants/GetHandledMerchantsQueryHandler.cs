@@ -17,39 +17,32 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetHandlerMerchants
 
         public async Task<GetHandledMerchantsQueryResponse> Handle(GetHandledMerchantsQuery request, CancellationToken cancellationToken)
         {
-            try
+            var ownedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(request.UserId, MerchantRole.OWNER);
+            var collaboratedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(request.UserId, MerchantRole.COLLABORATOR);
+
+            List<HandledMerchantItem> ownedMerchantsProjection = ownedMerchants
+            .Select(om => new HandledMerchantItem()
             {
-                var ownedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(request.UserId, MerchantRole.OWNER);
-                var collaboratedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(request.UserId, MerchantRole.COLLABORATOR);
+                Id = om.Id,
+                Name = om.Name,
+                LogoUrl = om.LogoUrl,
+                LastVisited = om.CreatedAt,
+            }).ToList();
 
-                List<HandledMerchantItem> ownedMerchantsProjection = ownedMerchants
-                .Select(om => new HandledMerchantItem()
-                {
-                    Id = om.Id,
-                    Name = om.Name,
-                    LogoUrl = om.LogoUrl,
-                    LastVisited = om.CreatedAt,
-                }).ToList();
-
-                List<HandledMerchantItem> collaboratedMerchantsProjection = collaboratedMerchants
-                .Select(cm => new HandledMerchantItem()
-                {
-                    Id = cm.Id,
-                    Name = cm.Name,
-                    LogoUrl = cm.LogoUrl,
-                    LastVisited = cm.CreatedAt,
-                }).ToList();
-
-                return new GetHandledMerchantsQueryResponse()
-                {
-                    OwnedMerchants = ownedMerchantsProjection,
-                    CollaboratedMerchants = collaboratedMerchantsProjection
-                };
-            }
-            catch (Exception ex)
+            List<HandledMerchantItem> collaboratedMerchantsProjection = collaboratedMerchants
+            .Select(cm => new HandledMerchantItem()
             {
-                throw new InternalSurfException(SurfErrorCode.READ_FAILED, "failed to get handled merchants", ex);
-            }
+                Id = cm.Id,
+                Name = cm.Name,
+                LogoUrl = cm.LogoUrl,
+                LastVisited = cm.CreatedAt,
+            }).ToList();
+
+            return new GetHandledMerchantsQueryResponse()
+            {
+                OwnedMerchants = ownedMerchantsProjection,
+                CollaboratedMerchants = collaboratedMerchantsProjection
+            };      
         }
     }
 }

@@ -32,7 +32,7 @@ namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
 
             if (user.VerifyCode == null || user.EmailConfirmed) 
             {
-                throw new NotFoundSurfException(SurfErrorCode.READ_FAILED, "user already verified");
+                throw new NotFoundSurfException(SurfErrorCode.USER_ALREADY_CONFIRMED, "user already verified");
             }
 
             if (user.VerifyCode.ToLower() != request.VerifyCode.ToLower())
@@ -52,7 +52,7 @@ namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
             var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
             if (activeSubscription == null)
             {
-                throw new BadRequestSurfException(SurfErrorCode.READ_FAILED, "User have no active subscriptions");
+                throw new BadRequestSurfException(SurfErrorCode.SUBSCRIPTION_ISSUE, "User have no active subscriptions");
             }
 
             var token = UserJwtHelper.GenerateJwtToken(_configuration, new UserJwtPayload()

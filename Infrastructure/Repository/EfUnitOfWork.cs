@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Infrastructure.Data;
+using SurfTicket.Domain.Models;
 
 namespace SurfTicket.Infrastructure.Repository
 {
@@ -46,8 +47,30 @@ namespace SurfTicket.Infrastructure.Repository
             _dbContext.Dispose();
         }
 
-        public async Task SaveChangesAsync()
+        public async Task SaveChangesAsync(string auditUserId = "System")
         {
+            var entries = _dbContext.ChangeTracker.Entries<EntityAudit>();
+            var utcNow = DateTime.UtcNow;
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = utcNow;
+                    entry.Entity.UpdatedAt = utcNow;
+                    entry.Entity.CreatedBy = auditUserId;
+                    entry.Entity.UpdatedBy = auditUserId;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Property(x => x.CreatedAt).IsModified = false;
+                    entry.Property(x => x.CreatedBy).IsModified = false;
+
+                    entry.Entity.UpdatedAt = utcNow;
+                    entry.Entity.UpdatedBy = auditUserId;
+                }
+            }
+
             await _dbContext.SaveChangesAsync();
         }
     }

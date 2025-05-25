@@ -117,6 +117,8 @@ builder.Services.AddMediatR(options =>
     options.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IEfUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<IPlanRepository, PlanRepository>();

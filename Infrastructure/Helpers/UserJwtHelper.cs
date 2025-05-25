@@ -26,7 +26,7 @@ namespace SurfTicket.Infrastructure.Helpers
                     UserId = Claims["UserId"],
                     Email = Claims["Email"],
                     Username = Claims["Username"],
-                    FirstName = Claims["FirstName"],
+                    FirstName = Claims["FirstName"],    
                     LastName = Claims["LastName"],
                     ActivePlan = (PlanCode) Enum.Parse(typeof(PlanCode), Claims["ActivePlan"].ToString())
                 };

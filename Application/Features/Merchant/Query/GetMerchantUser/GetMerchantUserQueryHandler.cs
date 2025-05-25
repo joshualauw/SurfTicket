@@ -8,9 +8,11 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetMerchantUser
     public class GetMerchantUserQueryHandler : IRequestHandler<GetMerchantUserQuery, GetMerchantUserQueryResponse>
     {
         private readonly IMerchantUserRepository _merchantUserRepository;
-        public GetMerchantUserQueryHandler(IMerchantUserRepository merchantUserRepository)
+        private readonly IMerchantRepository _merchantRepository;
+        public GetMerchantUserQueryHandler(IMerchantUserRepository merchantUserRepository, IMerchantRepository merchantRepository)
         {
             _merchantUserRepository = merchantUserRepository;
+            _merchantRepository = merchantRepository;
         }
 
         public async Task<GetMerchantUserQueryResponse> Handle(GetMerchantUserQuery request, CancellationToken cancellationToken)
@@ -33,6 +35,7 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetMerchantUser
             return new GetMerchantUserQueryResponse()
             { 
                 Id = merchantUser.Id,
+                MerchantId = request.MerchantId,
                 Role = merchantUser.Role,
                 Permissions = permissions,
             };
