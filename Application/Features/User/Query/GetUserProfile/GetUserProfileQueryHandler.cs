@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Services.Interface;
 using SurfTicket.Domain.Models;
 
 namespace SurfTicket.Application.Features.User.Query.GetUserProfile
@@ -9,16 +10,18 @@ namespace SurfTicket.Application.Features.User.Query.GetUserProfile
     {
         private readonly UserManager<UserEntity> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly ICurrentUserService _currentUserService;
 
-        public GetUserProfileQueryHandler(UserManager<UserEntity> userManager, IConfiguration configuration)
+        public GetUserProfileQueryHandler(UserManager<UserEntity> userManager, IConfiguration configuration, ICurrentUserService currentUserService)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _currentUserService = currentUserService;
         }
 
         public async Task<GetUserProfileQueryResponse> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(request.UserId);
+            var user = await _userManager.FindByIdAsync(_currentUserService.Payload.UserId);
             if (user == null)
             {
                 throw new BadRequestSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");

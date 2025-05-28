@@ -7,6 +7,5 @@ namespace SurfTicket.Application.Features.User.Command.UpdateProfile
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string NewEmail { get; set; }
-        public string OldEmail { get; set; }
     }
 }

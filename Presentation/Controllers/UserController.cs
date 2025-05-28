@@ -26,13 +26,7 @@ namespace SurfTicket.Presentation.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetUserProfile()
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
-            GetUserProfileQuery query = new GetUserProfileQuery()
-            {
-                UserId = user.UserId
-            };
-
+            GetUserProfileQuery query = new GetUserProfileQuery();
             var result = await _sender.Send(query);
 
             return Ok(ApiResponseHelper.Success("Get user profile succesful", result));
@@ -41,12 +35,9 @@ namespace SurfTicket.Presentation.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileBody body)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             UpdateProfileCommand command = new UpdateProfileCommand()
             {
                 NewEmail = body.Email,
-                OldEmail = user.Email,
                 FirstName = body.FirstName,
                 LastName = body.LastName,
             };

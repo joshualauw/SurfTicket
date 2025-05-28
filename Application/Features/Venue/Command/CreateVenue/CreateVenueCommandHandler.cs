@@ -3,6 +3,7 @@ using SurfTicket.Application.Exceptions;
 using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
+using SurfTicket.Application.Services.Interface;
 
 namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
 {
@@ -12,21 +13,24 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
         private readonly IVenueRepository _venueRepository;
         private readonly IEfUnitOfWork _efUnitOfWork;
         private readonly IPermissionAdminRepository _permissionAdminRepository;
+        private readonly ICurrentUserService _currentUserService;
 
         public CreateVenueCommandHandler(IMerchantUserRepository merchantUserRepository, 
             IVenueRepository venueRepository, 
             IEfUnitOfWork efUnitOfWork,
-            IPermissionAdminRepository permissionAdminRepository)
+            IPermissionAdminRepository permissionAdminRepository,
+            ICurrentUserService currentUserService)
         {
             _merchantUserRepository = merchantUserRepository;
             _venueRepository = venueRepository;
             _efUnitOfWork = efUnitOfWork;
             _permissionAdminRepository = permissionAdminRepository;
+            _currentUserService = currentUserService;
         }
 
         public async Task<CreateVenueCommandResponse> Handle(CreateVenueCommand request, CancellationToken cancellationToken)
         {
-            var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, request.UserId);
+            var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, _currentUserService.Payload.UserId);
             if (merchantUser == null)
             {
                 throw new NotFoundSurfException(SurfErrorCode.MERCHANT_USER_NOT_FOUND, "Merchant user not found");

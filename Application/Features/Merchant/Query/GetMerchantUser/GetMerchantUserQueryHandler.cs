@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Application.Features.Merchant.Query.GetMerchantUser.Dto;
+using SurfTicket.Application.Services.Interface;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Merchant.Query.GetMerchantUser
@@ -9,15 +10,17 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetMerchantUser
     {
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IMerchantRepository _merchantRepository;
-        public GetMerchantUserQueryHandler(IMerchantUserRepository merchantUserRepository, IMerchantRepository merchantRepository)
+        private readonly ICurrentUserService _currentUserService;
+        public GetMerchantUserQueryHandler(IMerchantUserRepository merchantUserRepository, IMerchantRepository merchantRepository, ICurrentUserService currentUserService)
         {
             _merchantUserRepository = merchantUserRepository;
             _merchantRepository = merchantRepository;
+            _currentUserService = currentUserService;
         }
 
         public async Task<GetMerchantUserQueryResponse> Handle(GetMerchantUserQuery request, CancellationToken cancellationToken)
         {
-            var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, request.UserId);
+            var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, _currentUserService.Payload.UserId);
             if (merchantUser == null)
             {
                 throw new NotFoundSurfException(SurfErrorCode.MERCHANT_USER_NOT_FOUND, "Merchant user not found");

@@ -15,6 +15,8 @@ using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Infrastructure.Repository;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
+using SurfTicket.Application.Services;
+using SurfTicket.Application.Services.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 

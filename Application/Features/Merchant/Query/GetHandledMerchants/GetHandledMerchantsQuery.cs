@@ -2,8 +2,5 @@
 
 namespace SurfTicket.Application.Features.Merchant.Query.GetHandlerMerchants
 {
-    public class GetHandledMerchantsQuery : IRequest<GetHandledMerchantsQueryResponse>
-    {
-        public string UserId { get; set; }
-    }
+    public class GetHandledMerchantsQuery : IRequest<GetHandledMerchantsQueryResponse> {}
 }

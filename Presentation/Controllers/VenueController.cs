@@ -30,12 +30,9 @@ namespace SurfTicket.Presentation.Controllers
         [HttpGet("admin/{merchantId}")]
         public async Task<IActionResult> GetAdminVenues(int merchantId, [FromQuery] FilterQuery filter)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             GetAdminVenuesQuery query = new GetAdminVenuesQuery()
             {
                 MerchantId = merchantId,
-                UserId = user.UserId,
                 Filter = filter
             };
 
@@ -48,12 +45,9 @@ namespace SurfTicket.Presentation.Controllers
         [HttpPost("admin/{merchantId}")]
         public async Task<IActionResult> CreateVenue(int merchantId, [FromBody] CreateVenueBody body)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             CreateVenueCommand command = new CreateVenueCommand()
             {
                MerchantId = merchantId,
-               UserId = user.UserId,
                Name = body.Name,
                Description = body.Description,
             };
@@ -66,12 +60,9 @@ namespace SurfTicket.Presentation.Controllers
         [HttpGet("admin/{merchantId}/{venueId}")]
         public async Task<IActionResult> UpdateVenue(int merchantId, int venueId)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             GetAdminVenueQuery query = new GetAdminVenueQuery()
             {
                 MerchantId = merchantId,
-                UserId = user.UserId,
                 VenueId = venueId,
             };
 
@@ -84,12 +75,9 @@ namespace SurfTicket.Presentation.Controllers
         [HttpPut("admin/{merchantId}/{venueId}")]
         public async Task<IActionResult> UpdateVenue(int merchantId, int venueId, [FromBody] UpdateVenueBody body)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             UpdateVenueCommand command = new UpdateVenueCommand()
             {
                 MerchantId = merchantId,
-                UserId = user.UserId,
                 VenueId = venueId,
                 Name = body.Name,
                 Description = body.Description,
@@ -103,12 +91,9 @@ namespace SurfTicket.Presentation.Controllers
         [HttpDelete("admin/{merchantId}/{venueId}")]
         public async Task<IActionResult> DeleteVenue(int merchantId, int venueId)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             DeleteVenueCommand command = new DeleteVenueCommand()
             {
                 MerchantId = merchantId,
-                UserId = user.UserId,
                 VenueId = venueId,
             };
 

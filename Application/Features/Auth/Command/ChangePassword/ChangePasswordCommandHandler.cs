@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Services.Interface;
 using SurfTicket.Domain.Models;
 
 namespace SurfTicket.Application.Features.Auth.Command.ChangePassword
@@ -9,16 +10,18 @@ namespace SurfTicket.Application.Features.Auth.Command.ChangePassword
     {
         private readonly UserManager<UserEntity> _userManager;
         private readonly SignInManager<UserEntity> _signInManager;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ChangePasswordCommandHandler(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager)
+        public ChangePasswordCommandHandler(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager, ICurrentUserService currentUserService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ChangePasswordCommandResponse> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(request.UserId);
+            var user = await _userManager.FindByIdAsync(_currentUserService.Payload.UserId);
             if (user == null)
             {
                 throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");

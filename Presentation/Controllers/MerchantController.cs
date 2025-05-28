@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Application.Features.Merchant.Command.CreateMerchant;
 using SurfTicket.Application.Features.Merchant.Query.GetHandlerMerchants;
+using SurfTicket.Application.Features.Merchant.Query.GetMerchantUser;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.Merchant;
@@ -26,13 +27,7 @@ namespace SurfTicket.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetHandledMerchants()
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
-            GetHandledMerchantsQuery query = new GetHandledMerchantsQuery()
-            {
-                UserId = user.UserId,
-            };
-
+            GetHandledMerchantsQuery query = new GetHandledMerchantsQuery();
             var result = await _sender.Send(query);
 
             return Ok(ApiResponseHelper.Success("Get handled merchants successful", result));
@@ -41,18 +36,28 @@ namespace SurfTicket.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMerchant([FromBody] CreateMerchantBody body)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             CreateMerchantCommand command = new CreateMerchantCommand()
             {
                 Name = body.Name,
                 Description = body.Description,
-                UserId = user.UserId,
             };
 
             var result = await _sender.Send(command);
 
             return Ok(ApiResponseHelper.Success("Create merchant succesful", result));
+        }
+
+        [HttpGet("{merchantId}/user")]
+        public async Task<IActionResult> GetMerchantUser(int merchantId)
+        {
+            GetMerchantUserQuery query = new GetMerchantUserQuery()
+            {
+                MerchantId = merchantId
+            };
+
+            var result = await _sender.Send(query);
+
+            return Ok(ApiResponseHelper.Success("Get merchant user successful", result));
         }
     }
 }

@@ -6,6 +6,5 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public string UserId { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Repository.Interface;
+using SurfTicket.Application.Services.Interface;
 
 namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
 {
@@ -13,24 +14,27 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IMerchantRepository _merchantRepository;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IEfUnitOfWork _efUnitOfWork;
 
         public CreateMerchantCommandHandler(UserManager<UserEntity> userManager, 
             ISubscriptionRepository subscriptionRepository, 
             IMerchantUserRepository merchantUserRepository, 
             IMerchantRepository merchantRepository, 
+            ICurrentUserService currentUserService,
             IEfUnitOfWork efUnitOfWork)
         {
             _userManager = userManager;
             _subscriptionRepository = subscriptionRepository;
             _merchantUserRepository = merchantUserRepository;
             _merchantRepository = merchantRepository;
+            _currentUserService = currentUserService;
             _efUnitOfWork = efUnitOfWork;
         }
 
         public async Task<CreateMerchantCommandResponse> Handle(CreateMerchantCommand request, CancellationToken cancellationToken)
         {         
-            var user = await _userManager.FindByIdAsync(request.UserId);
+            var user = await _userManager.FindByIdAsync(_currentUserService.Payload.UserId);
             if (user == null)
             {
                 throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
@@ -50,12 +54,11 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
                 await _efUnitOfWork.BeginTransactionAsync();
 
                 MerchantEntity merchant = MerchantEntity.Create(request.Name, request.Description, user.Id);
-
                 _merchantRepository.Create(merchant);
+
                 await _efUnitOfWork.SaveChangesAsync();
-
                 await _efUnitOfWork.CommitAsync();
-
+                 
                 return new CreateMerchantCommandResponse()
                 {
                     MerchantId = merchant.Id

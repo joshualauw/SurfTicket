@@ -30,16 +30,10 @@ namespace SurfTicket.Presentation.Controllers
         [Authorize]
         public async Task<IActionResult> Me()
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
+            MeCommand command = new MeCommand();
+            var result = await _sender.Send(command);
 
-            MeCommand command = new MeCommand()
-            {
-                UserId = user.UserId,
-            };
-
-            await _sender.Send(command);
-
-            return Ok(ApiResponseHelper.Success("Get me successful", user));
+            return Ok(ApiResponseHelper.Success("Get me successful", result.User));
         }
 
         [HttpPost("verify")]
@@ -88,11 +82,8 @@ namespace SurfTicket.Presentation.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordBody body)
         {
-            UserJwtPayload user = UserJwtHelper.GetJwtUser(HttpContext);
-
             ChangePasswordCommand command = new ChangePasswordCommand()
             {
-                UserId = user.UserId,
                 OldPassword = body.OldPassword,
                 NewPassword = body.Password,
             };

@@ -9,32 +9,6 @@ namespace SurfTicket.Infrastructure.Helpers
 {
     public class UserJwtHelper
     {
-        public static UserJwtPayload GetJwtUser(HttpContext context)
-        {
-            UserJwtPayload payload = new UserJwtPayload();
-
-            if (context.User.Identity?.IsAuthenticated == true)
-            {
-                var tokenString = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                var handler = new JwtSecurityTokenHandler();
-                var jsonToken = handler.ReadJwtToken(tokenString);
-
-                var Claims = jsonToken.Claims.ToDictionary(c => c.Type, c => c.Value);
-
-                payload = new UserJwtPayload
-                {
-                    UserId = Claims["UserId"],
-                    Email = Claims["Email"],
-                    Username = Claims["Username"],
-                    FirstName = Claims["FirstName"],    
-                    LastName = Claims["LastName"],
-                    ActivePlan = (PlanCode) Enum.Parse(typeof(PlanCode), Claims["ActivePlan"].ToString())
-                };
-            }
-
-            return payload;
-        }
-
         public static string GenerateJwtToken(IConfiguration Configuration, UserJwtPayload payload)
         {
             var jwtSettings = Configuration.GetSection("JwtSettings");

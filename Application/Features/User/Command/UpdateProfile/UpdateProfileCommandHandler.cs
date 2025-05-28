@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Services.Interface;
 using SurfTicket.Domain.Models;
 
 namespace SurfTicket.Application.Features.User.Command.UpdateProfile
@@ -8,15 +9,16 @@ namespace SurfTicket.Application.Features.User.Command.UpdateProfile
     public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, UpdateProfileCommandResponse>
     {
         private readonly UserManager<UserEntity> _userManager;
-        public UpdateProfileCommandHandler(UserManager<UserEntity> userManager)
+        private readonly ICurrentUserService _currentUserService;
+        public UpdateProfileCommandHandler(UserManager<UserEntity> userManager, ICurrentUserService currentUserService)
         {
             _userManager = userManager;
+            _currentUserService = currentUserService;
         }
 
         public async Task<UpdateProfileCommandResponse> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.OldEmail);
-
+            var user = await _userManager.FindByEmailAsync(_currentUserService.Payload.Email);
             if (user == null)
             {
                 throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
