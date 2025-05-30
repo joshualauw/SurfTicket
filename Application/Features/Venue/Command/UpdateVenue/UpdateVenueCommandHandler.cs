@@ -45,7 +45,7 @@ namespace SurfTicket.Application.Features.Venue.Command.UpdateVenue
             }
 
             venue.Update(request.Name, request.Description);
-            await _efUnitOfWork.SaveChangesAsync();
+            await _efUnitOfWork.SaveChangesAsync(_currentUserService.Payload.UserId);
 
             return new UpdateVenueCommandResponse();
         }

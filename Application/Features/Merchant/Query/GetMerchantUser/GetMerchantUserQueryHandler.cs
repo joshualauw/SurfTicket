@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using SurfTicket.Application.Exceptions;
 using SurfTicket.Application.Features.Merchant.Query.GetMerchantUser.Dto;
 using SurfTicket.Application.Services.Interface;
@@ -11,11 +12,16 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetMerchantUser
         private readonly IMerchantUserRepository _merchantUserRepository;
         private readonly IMerchantRepository _merchantRepository;
         private readonly ICurrentUserService _currentUserService;
-        public GetMerchantUserQueryHandler(IMerchantUserRepository merchantUserRepository, IMerchantRepository merchantRepository, ICurrentUserService currentUserService)
+        private readonly IMapper _mapper;
+        public GetMerchantUserQueryHandler(IMerchantUserRepository merchantUserRepository, 
+            IMerchantRepository merchantRepository, 
+            ICurrentUserService currentUserService,
+            IMapper mapper)
         {
             _merchantUserRepository = merchantUserRepository;
             _merchantRepository = merchantRepository;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
         public async Task<GetMerchantUserQueryResponse> Handle(GetMerchantUserQuery request, CancellationToken cancellationToken)
@@ -28,12 +34,7 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetMerchantUser
 
             var permissionMenus = await _merchantUserRepository.GetMerchantUserPermissionsAsync(merchantUser.Id);
 
-            List<PermissionMenuItem> permissions = permissionMenus.Select(p => new PermissionMenuItem()
-            {
-                Id = p.Id,
-                Code = p.PermissionAdmin.Code,
-                Access = p.Access,
-            }).ToList();
+            var permissions = _mapper.Map<List<PermissionMenuItem>>(permissionMenus);
 
             return new GetMerchantUserQueryResponse()
             { 

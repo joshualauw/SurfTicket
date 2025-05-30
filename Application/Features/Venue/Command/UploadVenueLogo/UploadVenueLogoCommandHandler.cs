@@ -3,7 +3,6 @@ using SurfTicket.Application.Exceptions;
 using SurfTicket.Application.Services.Interface;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.FileStorage;
-using SurfTicket.Infrastructure.Repository;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Application.Features.Venue.Command.UploadVenueLogo
@@ -48,9 +47,15 @@ namespace SurfTicket.Application.Features.Venue.Command.UploadVenueLogo
                 throw new NotFoundSurfException(SurfErrorCode.VENUE_NOT_FOUND, "Venue not found");
             }
 
+            if (venue.LogoUrl != null)
+            {
+                _fileStorageService.DeleteFile(venue.LogoUrl, "Venue");
+            }
+
             var filePath = await _fileStorageService.SaveFileAsync(request.File, "Venue");
             venue.LogoUrl = filePath;
-            await _efUnitOfWork.SaveChangesAsync();
+
+            await _efUnitOfWork.SaveChangesAsync(_currentUserService.Payload.UserId);
 
             return new UploadVenueLogoCommandResponse()
             {

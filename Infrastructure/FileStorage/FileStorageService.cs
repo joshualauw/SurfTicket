@@ -10,6 +10,17 @@ namespace SurfTicket.Infrastructure.FileStorage
         {
             _env = env;
         }
+
+        public void DeleteFile(string filePath, string folder)
+        {
+            var fullPath = Path.Combine(_env.WebRootPath, "Uploads", folder, Path.GetFileName(filePath));
+
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
+        }
+
         public async Task<string> SaveFileAsync(IFormFile file, string folder)
         {
             var uploadsPath = Path.Combine(_env.WebRootPath, "Uploads", folder);

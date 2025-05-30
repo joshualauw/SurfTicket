@@ -44,7 +44,7 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
                 var venue = VenueEntity.Create(request.MerchantId, request.Name, request.Description);
                 _venueRepository.Create(venue);
 
-                await _efUnitOfWork.SaveChangesAsync();
+                await _efUnitOfWork.SaveChangesAsync(_currentUserService.Payload.UserId);
 
                 return new CreateVenueCommandResponse
                 {
