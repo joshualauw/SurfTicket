@@ -4,13 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using SurfTicket.Infrastructure.Common;
 using SurfTicket.Application.Features.Venue.Command.CreateVenue;
 using SurfTicket.Application.Features.Venue.Query.GetAdminVenues;
-using SurfTicket.Infrastructure.Dto;
-using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Presentation.Dto.Venue;
 using SurfTicket.Presentation.Helpers;
 using SurfTicket.Application.Features.Venue.Command.UpdateVenue;
 using SurfTicket.Application.Features.Venue.Query.GetAdminVenue;
 using SurfTicket.Application.Features.Venue.Command.DeleteVenue;
+using SurfTicket.Application.Features.Venue.Command.UploadVenueLogo;
 
 namespace SurfTicket.Presentation.Controllers
 {
@@ -70,6 +69,20 @@ namespace SurfTicket.Presentation.Controllers
             var mappedResult = result.Detail;
 
             return Ok(ApiResponseHelper.Success("Get admin venue succesful", mappedResult));
+        }
+
+        [HttpPost("admin/{merchantId}/{venueId}/upload")]
+        public async Task<IActionResult> UploadVenueLogo(int merchantId, int venueId, [FromForm] UploadVenueLogoBody body)
+        {
+            UploadVenueLogoCommand command = new UploadVenueLogoCommand()
+            {
+                MerchantId = merchantId,
+                VenueId = venueId,
+                File = body.Logo
+            };
+
+            var result = await _sender.Send(command);
+            return Ok(ApiResponseHelper.Success("Upload venue logo succesful", result));
         }
 
         [HttpPut("admin/{merchantId}/{venueId}")]

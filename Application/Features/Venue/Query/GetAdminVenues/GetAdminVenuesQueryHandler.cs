@@ -5,6 +5,7 @@ using SurfTicket.Application.Features.Venue.Query.GetAdminVenues.Dto;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Application.Services.Interface;
+using AutoMapper;
 
 namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
 {
@@ -14,16 +15,19 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
         private readonly IPermissionAdminRepository _permissionAdminRepository;
         private readonly IVenueRepository _venueRepository;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IMapper _mapper;
 
         public GetAdminVenuesQueryHandler(IMerchantUserRepository merchantUserRepository, 
             IPermissionAdminRepository permissionAdminRepository, 
             IVenueRepository venueRepository,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IMapper mapper)
         {
             _merchantUserRepository = merchantUserRepository;
             _permissionAdminRepository = permissionAdminRepository;
             _venueRepository = venueRepository;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
         public async Task<GetAdminVenuesQueryResponse> Handle(GetAdminVenuesQuery request, CancellationToken cancellationToken)
@@ -39,12 +43,7 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
 
             var venues = await _venueRepository.GetAdminVenues(request.MerchantId, request.Filter);
 
-            var adminVenues = venues.Items.Select(v => new AdminVenueItem()
-            {
-                Id = v.Id,
-                Name = v.Name,
-                LogoUrl = v.LogoUrl,
-            }).ToList();
+            var adminVenues = _mapper.Map<List<AdminVenueItem>>(venues.Items);
 
             return new GetAdminVenuesQueryResponse()
             {

@@ -3,6 +3,7 @@ using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Application.Features.Merchant.Query.GetHandledMerchants.Dto;
 using SurfTicket.Application.Services.Interface;
+using AutoMapper;
 
 namespace SurfTicket.Application.Features.Merchant.Query.GetHandlerMerchants
 {
@@ -10,11 +11,13 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetHandlerMerchants
     {
         private readonly IMerchantRepository _merchantRepository;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IMapper _mapper;
 
-        public GetHandledMerchantsQueryHandler(IMerchantRepository merchantRepository, ICurrentUserService currentUserService)
+        public GetHandledMerchantsQueryHandler(IMerchantRepository merchantRepository, ICurrentUserService currentUserService, IMapper mapper)
         {
             _merchantRepository = merchantRepository;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
         public async Task<GetHandledMerchantsQueryResponse> Handle(GetHandledMerchantsQuery request, CancellationToken cancellationToken)
@@ -22,23 +25,8 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetHandlerMerchants
             var ownedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(_currentUserService.Payload.UserId, MerchantRole.OWNER);
             var collaboratedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(_currentUserService.Payload.UserId, MerchantRole.COLLABORATOR);
 
-            List<HandledMerchantItem> ownedMerchantsProjection = ownedMerchants
-            .Select(om => new HandledMerchantItem()
-            {
-                Id = om.Id,
-                Name = om.Name,
-                LogoUrl = om.LogoUrl,
-                LastVisited = om.CreatedAt,
-            }).ToList();
-
-            List<HandledMerchantItem> collaboratedMerchantsProjection = collaboratedMerchants
-            .Select(cm => new HandledMerchantItem()
-            {
-                Id = cm.Id,
-                Name = cm.Name,
-                LogoUrl = cm.LogoUrl,
-                LastVisited = cm.CreatedAt,
-            }).ToList();
+            var ownedMerchantsProjection = _mapper.Map<List<HandledMerchantItem>>(ownedMerchants);
+            var collaboratedMerchantsProjection = _mapper.Map<List<HandledMerchantItem>>(collaboratedMerchants);
 
             return new GetHandledMerchantsQueryResponse()
             {

@@ -17,6 +17,10 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using SurfTicket.Application.Services;
 using SurfTicket.Application.Services.Interface;
+using SurfTicket.Infrastructure.FileStorage;
+using SurfTicket.Application.Features.Venue.Mapper;
+using SurfTicket.Application.Features.Merchant.Mapper;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,14 +118,32 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
+});
+
 builder.Services.AddMediatR(options =>
 {
     options.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 
+builder.Services.AddAutoMapper(options => 
+{
+    options.AddProfile<VenueProfile>();
+    options.AddProfile<MerchantProfile>();
+});
+
 builder.Services.AddHttpContextAccessor();
+
+//Transient
+builder.Services.AddTransient<VenueLogoResolver>();
+builder.Services.AddTransient<MerchantLogoResolver>();
+
+//Scoped
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IEfUnitOfWork, EfUnitOfWork>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<IPlanRepository, PlanRepository>();
 builder.Services.AddScoped<IMerchantRepository, MerchantRepository>();
@@ -161,6 +183,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+app.UseStaticFiles();
 
 using (var scope = app.Services.CreateScope())
 {

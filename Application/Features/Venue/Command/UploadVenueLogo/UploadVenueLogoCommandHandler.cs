@@ -1,36 +1,37 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using SurfTicket.Application.Exceptions;
-using SurfTicket.Application.Features.Venue.Query.GetAdminVenue.Dto;
 using SurfTicket.Application.Services.Interface;
 using SurfTicket.Domain.Enums;
-using SurfTicket.Infrastructure.Dto;
+using SurfTicket.Infrastructure.FileStorage;
+using SurfTicket.Infrastructure.Repository;
 using SurfTicket.Infrastructure.Repository.Interface;
 
-namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenue
+namespace SurfTicket.Application.Features.Venue.Command.UploadVenueLogo
 {
-    public class GetAdminVenueQueryHandler : IRequestHandler<GetAdminVenueQuery, GetAdminVenueQueryResponse>
+    public class UploadVenueLogoCommandHandler : IRequestHandler<UploadVenueLogoCommand, UploadVenueLogoCommandResponse>
     {
         private readonly IMerchantUserRepository _merchantUserRepository;
-        private readonly IVenueRepository _venueRepository;
         private readonly IPermissionAdminRepository _permissionAdminRepository;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IMapper _mapper;
-
-        public GetAdminVenueQueryHandler(IMerchantUserRepository merchantUserRepository,
-            IVenueRepository venueRepository,
+        private readonly IVenueRepository _venueRepository;
+        private readonly IFileStorageService _fileStorageService;
+        private readonly IEfUnitOfWork _efUnitOfWork;
+        public UploadVenueLogoCommandHandler(IMerchantUserRepository merchantUserRepository,
             IPermissionAdminRepository permissionAdminRepository,
             ICurrentUserService currentUserService,
-            IMapper mapper)
+            IVenueRepository venueRepository,
+            IFileStorageService fileStorageService,
+            IEfUnitOfWork efUnitOfWork)
         {
             _merchantUserRepository = merchantUserRepository;
             _venueRepository = venueRepository;
             _permissionAdminRepository = permissionAdminRepository;
             _currentUserService = currentUserService;
-            _mapper = mapper;
+            _fileStorageService = fileStorageService;
+            _efUnitOfWork = efUnitOfWork;
         }
 
-        public async Task<GetAdminVenueQueryResponse> Handle(GetAdminVenueQuery request, CancellationToken cancellationToken)
+        public async Task<UploadVenueLogoCommandResponse> Handle(UploadVenueLogoCommand request, CancellationToken cancellationToken)
         {
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, _currentUserService.Payload.UserId);
             if (merchantUser == null)
@@ -39,7 +40,7 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenue
             }
 
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
-            merchantUser.EnsureHasPermission(permission, PermissionAccess.VIEW);
+            merchantUser.EnsureHasPermission(permission, PermissionAccess.UPDATE);
 
             var venue = await _venueRepository.GetAsync(request.VenueId);
             if (venue == null)
@@ -47,11 +48,13 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenue
                 throw new NotFoundSurfException(SurfErrorCode.VENUE_NOT_FOUND, "Venue not found");
             }
 
-            var adminVenue = _mapper.Map<AdminVenueDetail>(venue);
+            var filePath = await _fileStorageService.SaveFileAsync(request.File, "Venue");
+            venue.LogoUrl = filePath;
+            await _efUnitOfWork.SaveChangesAsync();
 
-            return new GetAdminVenueQueryResponse()
+            return new UploadVenueLogoCommandResponse()
             {
-                Detail = adminVenue
+                FilePath = filePath,
             };
         }
     }
