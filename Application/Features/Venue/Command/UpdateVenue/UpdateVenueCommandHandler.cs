@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Features.Merchant.Exceptions;
+using SurfTicket.Application.Features.Venue.Exceptions;
 using SurfTicket.Application.Services.Interface;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Repository.Interface;
@@ -32,7 +34,7 @@ namespace SurfTicket.Application.Features.Venue.Command.UpdateVenue
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, _currentUserService.Payload.UserId);
             if (merchantUser == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.MERCHANT_USER_NOT_FOUND, "Merchant user not found");
+                throw new MerchantUserNotFoundException();
             }
 
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
@@ -41,7 +43,7 @@ namespace SurfTicket.Application.Features.Venue.Command.UpdateVenue
             var venue = await _venueRepository.GetAsync(request.VenueId);
             if (venue == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.VENUE_NOT_FOUND, "Venue not found");
+                throw new VenueNotFoundException();
             }
 
             venue.Update(request.Name, request.Description);

@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Features.Auth.Exceptions;
+using SurfTicket.Application.Features.User.Exceptions;
 using SurfTicket.Application.Services.Interface;
 using SurfTicket.Domain.Models;
 
@@ -24,13 +26,13 @@ namespace SurfTicket.Application.Features.Auth.Command.ChangePassword
             var user = await _userManager.FindByIdAsync(_currentUserService.Payload.UserId);
             if (user == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
+                throw new UserNotFoundException();
             }
 
             var passwordValid = await _userManager.CheckPasswordAsync(user, request.OldPassword);
             if (!passwordValid)
             {
-                throw new BadRequestSurfException(SurfErrorCode.UNAUTHORIZED, "invalid old password");
+                throw new SurfException(SurfErrorCode.UNAUTHORIZED, "invalid old password", 400);
             }
 
             var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
@@ -44,7 +46,7 @@ namespace SurfTicket.Application.Features.Auth.Command.ChangePassword
                     errors += $"#{error.Code} - {error.Description}\n";
                 }
 
-                throw new UnprocessableSurfException(SurfErrorCode.UNAUTHORIZED, errors);
+                throw new SurfException(SurfErrorCode.UNAUTHORIZED, errors, 401);
             }
 
             return new ChangePasswordCommandResponse();

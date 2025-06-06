@@ -1,6 +1,6 @@
 ﻿namespace SurfTicket.Application.Exceptions
 {
-    public abstract class SurfException : Exception
+    public class SurfException : Exception
     {
         public SurfErrorCode ErrorCode { get; set; }
         public int StatusCode { get; set; }
@@ -16,30 +16,5 @@
             ErrorCode = errorCode;
             StatusCode = statusCode;
         }
-    }
-
-    public class InternalSurfException : SurfException
-    {
-        public InternalSurfException(SurfErrorCode errorCode, string message, Exception ex) : base(errorCode, message, 500, ex) { }
-    }
-
-    public class BadRequestSurfException : SurfException
-    {
-        public BadRequestSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 400) { }
-    }
-
-    public class UnprocessableSurfException : SurfException
-    {
-        public UnprocessableSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 422) { }
-    }
-
-    public class UnauthorizedSurfException : SurfException
-    {
-        public UnauthorizedSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 401) { }
-    }
-
-    public class NotFoundSurfException : SurfException
-    {
-        public NotFoundSurfException(SurfErrorCode errorCode, string message) : base(errorCode, message, 404) { }
     }
 }

@@ -4,6 +4,8 @@ using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
 using SurfTicket.Application.Services.Interface;
+using SurfTicket.Application.Features.Merchant.Exceptions;
+using SurfTicket.Application.Features.Venue.Exceptions;
 
 namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
 {
@@ -33,28 +35,21 @@ namespace SurfTicket.Application.Features.Venue.Command.CreateVenue
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, _currentUserService.Payload.UserId);
             if (merchantUser == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.MERCHANT_USER_NOT_FOUND, "Merchant user not found");
+                throw new MerchantUserNotFoundException();
             }
 
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);
             merchantUser.EnsureHasPermission(permission, PermissionAccess.INSERT);
 
-            try
-            {
-                var venue = VenueEntity.Create(request.MerchantId, request.Name, request.Description);
-                _venueRepository.Create(venue);
+            var venue = VenueEntity.Create(request.MerchantId, request.Name, request.Description);
+            _venueRepository.Create(venue);
 
-                await _efUnitOfWork.SaveChangesAsync(_currentUserService.Payload.UserId);
+            await _efUnitOfWork.SaveChangesAsync(_currentUserService.Payload.UserId);
 
-                return new CreateVenueCommandResponse
-                {
-                    VenueId = venue.Id,
-                };
-            }
-            catch (Exception ex)
+            return new CreateVenueCommandResponse
             {
-                throw new InternalSurfException(SurfErrorCode.VENUE_CREATE_FAILED, "failed to create venue", ex);
-            }
+                VenueId = venue.Id,
+            };
         }
     }
 }

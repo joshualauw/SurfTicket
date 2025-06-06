@@ -1,10 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Models;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Application.Services.Interface;
+using SurfTicket.Application.Features.Merchant.Exceptions;
+using SurfTicket.Application.Features.User.Exceptions;
 
 namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
 {
@@ -37,38 +38,27 @@ namespace SurfTicket.Application.Features.Merchant.Command.CreateMerchant
             var user = await _userManager.FindByIdAsync(_currentUserService.Payload.UserId);
             if (user == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
+                throw new UserNotFoundException();
             }
 
             var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
             if (activeSubscription == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.SUBSCRIPTION_ISSUE, "active subscription not found");
+                throw new SubscriptionNotFoundException();
             }
 
             var ownedMerchants = await _merchantRepository.GetMerchantsByRoleAsync(user.Id, MerchantRole.OWNER);
             activeSubscription.EnsureCanCreateMerchant(ownedMerchants.Count);
 
-            try
-            {
-                await _efUnitOfWork.BeginTransactionAsync();
+            MerchantEntity merchant = MerchantEntity.Create(request.Name, request.Description, user.Id);
+            _merchantRepository.Create(merchant);
 
-                MerchantEntity merchant = MerchantEntity.Create(request.Name, request.Description, user.Id);
-                _merchantRepository.Create(merchant);
+            await _efUnitOfWork.SaveChangesAsync(_currentUserService.Payload.UserId);
 
-                await _efUnitOfWork.SaveChangesAsync(_currentUserService.Payload.UserId);
-                await _efUnitOfWork.CommitAsync();
-                 
-                return new CreateMerchantCommandResponse()
-                {
-                    MerchantId = merchant.Id
-                };
-            }
-            catch (Exception ex)
+            return new CreateMerchantCommandResponse()
             {
-                await _efUnitOfWork.RollbackAsync();
-                throw new InternalSurfException(SurfErrorCode.MERCHANT_CREATE_FAILED, "failed to create merchant", ex);
-            }    
+                MerchantId = merchant.Id
+            };              
         }
     }
 }

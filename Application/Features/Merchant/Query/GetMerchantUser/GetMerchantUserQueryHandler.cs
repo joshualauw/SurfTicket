@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Features.Merchant.Exceptions;
 using SurfTicket.Application.Features.Merchant.Query.GetMerchantUser.Dto;
 using SurfTicket.Application.Services.Interface;
 using SurfTicket.Infrastructure.Repository.Interface;
@@ -29,7 +30,7 @@ namespace SurfTicket.Application.Features.Merchant.Query.GetMerchantUser
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, _currentUserService.Payload.UserId);
             if (merchantUser == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.MERCHANT_USER_NOT_FOUND, "Merchant user not found");
+                throw new MerchantUserNotFoundException();
             }
 
             var permissionMenus = await _merchantUserRepository.GetMerchantUserPermissionsAsync(merchantUser.Id);

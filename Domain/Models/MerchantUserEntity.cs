@@ -1,5 +1,6 @@
 ﻿using SurfTicket.Application.Exceptions;
 using SurfTicket.Domain.Enums;
+using SurfTicket.Domain.Exceptions;
 
 namespace SurfTicket.Domain.Models
 {
@@ -34,7 +35,7 @@ namespace SurfTicket.Domain.Models
 
             if (!pass)
             {
-                throw new BadRequestSurfException(SurfErrorCode.MERCHANT_VIOLATE_PERMISSION, "Merchant user does not have access");
+                throw new MerchantNoPermissionException();
             }
         }
     }

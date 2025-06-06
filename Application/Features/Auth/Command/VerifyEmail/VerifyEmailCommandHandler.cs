@@ -2,10 +2,14 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Features.Auth.Exceptions;
+using SurfTicket.Application.Features.Merchant.Exceptions;
+using SurfTicket.Application.Features.User.Exceptions;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Dto;
 using SurfTicket.Infrastructure.Helpers;
 using SurfTicket.Infrastructure.Repository.Interface;
+using System.Security.Authentication;
 
 namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
 {
@@ -27,22 +31,22 @@ namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
 
             if (user == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
+                throw new UserNotFoundException();
             }
 
             if (user.VerifyCode == null || user.EmailConfirmed) 
             {
-                throw new NotFoundSurfException(SurfErrorCode.USER_ALREADY_CONFIRMED, "user already verified");
+                throw new EmailAlreadyVerifiedException();
             }
 
             if (user.VerifyCode.ToLower() != request.VerifyCode.ToLower())
             {
-                throw new BadRequestSurfException(SurfErrorCode.UNAUTHORIZED, "invalid verify code");
+                throw new InvalidVerificationTokenException();
             }
 
             if (user.Email == null || user.UserName == null)
             {
-                throw new BadRequestSurfException(SurfErrorCode.USER_NOT_FOUND, "Invalid credentials");
+                throw new InvalidCredentialsException(SurfErrorCode.USER_NOT_FOUND);
             }
 
             user.EmailConfirmed = true;
@@ -52,7 +56,7 @@ namespace SurfTicket.Application.Features.Auth.Command.VerifyEmail
             var activeSubscription = await _subscriptionRepository.GetUserActiveSubscriptionAsync(user.Id);
             if (activeSubscription == null)
             {
-                throw new BadRequestSurfException(SurfErrorCode.SUBSCRIPTION_ISSUE, "User have no active subscriptions");
+                throw new SubscriptionNotFoundException();
             }
 
             var token = UserJwtHelper.GenerateJwtToken(_configuration, new UserJwtPayload()

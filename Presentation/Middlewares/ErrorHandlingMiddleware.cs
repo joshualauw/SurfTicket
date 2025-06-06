@@ -3,6 +3,7 @@ using SurfTicket.Presentation.Helpers;
 using SurfTicket.Presentation.Dto;
 using SurfTicket.Application.Exceptions;
 using Newtonsoft.Json.Serialization;
+using SurfTicket.Domain.Exceptions;
 
 namespace SurfTicket.Presentation.Middlewares
 {
@@ -35,7 +36,23 @@ namespace SurfTicket.Presentation.Middlewares
                 _logger.LogError(ex, "Generic Error - Message: {Message}, InnerException: {InnerException}, Path: {Path}, Source: {Source}",
                     ex.Message, ex.InnerException, context.Request.Path, ex.Source);
 
-                await ErrorJsonResponse(context, "Something went wrong", 500, (int) SurfErrorCode.GENERIC_ERROR);
+                await DomainExceptionMappings(context, ex);
+            }
+        }
+
+        private async Task DomainExceptionMappings(HttpContext context, Exception ex)
+        {
+            switch (ex)
+            {
+                case MerchantLimitException:
+                    await ErrorJsonResponse(context, ex.Message, 500, (int)SurfErrorCode.MERCHANT_EXCEED_LIMIT);
+                    break;
+                case MerchantNoPermissionException:
+                    await ErrorJsonResponse(context, ex.Message, 400, (int)SurfErrorCode.MERCHANT_VIOLATE_PERMISSION);
+                    break;
+                default:
+                    await ErrorJsonResponse(context, "Something went wrong", 500, (int)SurfErrorCode.GENERIC_ERROR);
+                    break;
             }
         }
 

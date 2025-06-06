@@ -6,6 +6,7 @@ using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Repository.Interface;
 using SurfTicket.Application.Services.Interface;
 using AutoMapper;
+using SurfTicket.Application.Features.Merchant.Exceptions;
 
 namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
 {
@@ -35,7 +36,7 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
             var merchantUser = await _merchantUserRepository.GetMerchantUserAsync(request.MerchantId, _currentUserService.Payload.UserId);
             if (merchantUser == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.MERCHANT_USER_NOT_FOUND, "Merchant user not found");
+                throw new MerchantUserNotFoundException();
             }
 
             var permission = await _permissionAdminRepository.GetByCodeAsync(PermissionCode.VENUE);

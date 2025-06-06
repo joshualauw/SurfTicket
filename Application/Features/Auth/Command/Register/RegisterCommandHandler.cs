@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SurfTicket.Application.Exceptions;
+using SurfTicket.Application.Features.Auth.Exceptions;
+using SurfTicket.Application.Features.User.Exceptions;
+using SurfTicket.Application.Features.Merchant.Exceptions;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Helpers;
@@ -48,7 +51,7 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                 {
                     if (error.Code.Equals("DuplicateUserName"))
                     {
-                        throw new BadRequestSurfException(SurfErrorCode.USER_EMAIL_ALREADY_USED, "email aready used");
+                        throw new EmailAlreadyUsedException();
                     }
                     else
                     {
@@ -56,49 +59,37 @@ namespace SurfTicket.Application.Features.Auth.Command.Register
                     }
                 }
 
-                throw new UnprocessableSurfException(SurfErrorCode.UNAUTHORIZED, errors);
+                throw new SurfException(SurfErrorCode.UNAUTHORIZED, errors, 400);
             }
 
             var userData = await _userManager.FindByEmailAsync(request.Email);
             if (userData == null)
             {
-                throw new NotFoundSurfException(SurfErrorCode.USER_NOT_FOUND, "user not found");
+                throw new UserNotFoundException();
             }
 
             var verifyCode = GenCodeHelper.GenerateCode(6);
-
             userData.VerifyCode = verifyCode;
-
             await _userManager.UpdateAsync(userData);
 
-            try
+            var basicPlan = await _planRepository.GetPlanByCodeAsync(PlanCode.BASIC);
+            if (basicPlan == null)
             {
-                var basicPlan = await _planRepository.GetPlanByCodeAsync(PlanCode.BASIC);
-                if (basicPlan != null)
-                {
-                    SubscriptionEntity subscription = new SubscriptionEntity()
-                    {
-                        PlanId = basicPlan.Id,
-                        UserId = user.Id,
-                        StartAt = DateTime.UtcNow,
-                        IsActive = true
-                    };
-                    _subscriptionRepository.Create(subscription);
-                    await _efUnitOfWork.SaveChangesAsync();
-                }
+                throw new PlanNotFoundException();
+            }
 
-                return new RegisterCommandResponse()
-                {
-                    Id = userData.Id,
-                    Email = userData.Email,
-                    Username = userData.UserName,
-                    VerifyCode = verifyCode,
-                };
-            }
-            catch (Exception ex)
+            SubscriptionEntity subscription = SubscriptionEntity.Create(basicPlan.Id, user.Id);
+            _subscriptionRepository.Create(subscription);
+
+            await _efUnitOfWork.SaveChangesAsync();    
+
+            return new RegisterCommandResponse()
             {
-                throw new InternalSurfException(SurfErrorCode.SUBSCRIPTION_CREATE_FAILED, "failed to insert user plan", ex);
-            }
+                Id = userData.Id,
+                Email = userData.Email,
+                Username = userData.UserName,
+                VerifyCode = verifyCode,
+            };
         }
     }
 }
