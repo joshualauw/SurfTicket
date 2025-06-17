@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Features\Merchant\Command\NewFolder\" />
     <Folder Include="Presentation\Filters\" />
     <Folder Include="Presentation\Web\" />
   </ItemGroup>

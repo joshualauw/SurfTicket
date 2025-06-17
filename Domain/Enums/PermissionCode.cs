@@ -7,6 +7,6 @@
         TICKET,
         SCAN,
         CHAT,
-        SETTINGS
+        SETTINGS,
     }
 }
