@@ -2,6 +2,7 @@
 using SurfTicket.Domain.Models;
 using SurfTicket.Infrastructure.Common;
 using SurfTicket.Infrastructure.Data;
+using SurfTicket.Infrastructure.Extensions;
 using SurfTicket.Infrastructure.Repository.Interface;
 
 namespace SurfTicket.Infrastructure.Repository
@@ -25,27 +26,17 @@ namespace SurfTicket.Infrastructure.Repository
            _dbContext.Venue.Remove(entity);
         }
 
-        public async Task<Common.PagedResult<VenueEntity>> GetAdminVenues(int merchantId, FilterQuery filter)
+        public async Task<PagedData<VenueEntity>> GetAdminVenues(int merchantId, FilterQuery filter)
         {
-            var query = _dbContext.Venue.Where(v => v.MerchantId == merchantId);
+            List<string> whitelistFields = new List<string>() { "Name" };
 
-            if (filter.FilterBy != null)
-            {
-                foreach (var f in filter.FilterBy)
-                {
-                    if (!string.IsNullOrEmpty(f.Value) && f.Key != null)
-                    {
-                        query = query.Where($"{f.Key}.ToLower().Contains(@0)", f.Value.ToLower());
-                    }
-                }
-            }
-      
-            if (!string.IsNullOrEmpty(filter.SortBy))
-            {
-                query = query.OrderBy($"{filter.SortBy} {filter.SortOrder}");
-            }
+            var query = await _dbContext.Venue
+            .Where(v => v.MerchantId == merchantId)
+            .ApplyFilters(filter.FilterBy, whitelistFields)
+            .ApplySorting(filter.SortBy, filter.SortOrder, whitelistFields)
+            .ToPagedResultAsync(filter.Page, filter.Size);
 
-            return await query.ToPagedResultAsync(filter.Page, filter.Size);
+            return query;
         }
 
         public async Task<VenueEntity?> GetAsync(int venueId)

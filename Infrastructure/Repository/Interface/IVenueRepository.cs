@@ -8,6 +8,6 @@ namespace SurfTicket.Infrastructure.Repository.Interface
         public void Create(VenueEntity entity);
         public void Remove(VenueEntity entity);
         public Task<VenueEntity?> GetAsync(int venueId);
-        public Task<PagedResult<VenueEntity>> GetAdminVenues(int merchantId, FilterQuery filter);
+        public Task<PagedData<VenueEntity>> GetAdminVenues(int merchantId, FilterQuery filter);
     }
 }

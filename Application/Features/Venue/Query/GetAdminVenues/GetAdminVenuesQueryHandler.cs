@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using SurfTicket.Infrastructure.Common;
-using SurfTicket.Application.Exceptions;
 using SurfTicket.Application.Features.Venue.Query.GetAdminVenues.Dto;
 using SurfTicket.Domain.Enums;
 using SurfTicket.Infrastructure.Repository.Interface;
@@ -48,7 +47,7 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
 
             return new GetAdminVenuesQueryResponse()
             {
-                Venues = new PagedResult<AdminVenueItem>()
+                Venues = new PagedData<AdminVenueItem>()
                 {
                     Items = adminVenues,
                     TotalItems = venues.TotalItems,

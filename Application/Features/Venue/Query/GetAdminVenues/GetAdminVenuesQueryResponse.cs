@@ -5,6 +5,6 @@ namespace SurfTicket.Application.Features.Venue.Query.GetAdminVenues
 {
     public class GetAdminVenuesQueryResponse
     {
-        public PagedResult<AdminVenueItem> Venues { get; set; }
+        public PagedData<AdminVenueItem> Venues { get; set; }
     }
 }

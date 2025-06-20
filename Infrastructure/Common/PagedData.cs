@@ -1,6 +1,6 @@
 ﻿namespace SurfTicket.Infrastructure.Common
 {
-    public class PagedResult<T>
+    public class PagedData<T>
     {
         public List<T> Items { get; set; }
         public int TotalItems { get; set; }

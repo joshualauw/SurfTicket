@@ -7,9 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Application\Features\Merchant\Command\NewFolder\**" />
     <Compile Remove="Infrastructure\Migrations\**" />
+    <Content Remove="Application\Features\Merchant\Command\NewFolder\**" />
     <Content Remove="Infrastructure\Migrations\**" />
+    <EmbeddedResource Remove="Application\Features\Merchant\Command\NewFolder\**" />
     <EmbeddedResource Remove="Infrastructure\Migrations\**" />
+    <None Remove="Application\Features\Merchant\Command\NewFolder\**" />
     <None Remove="Infrastructure\Migrations\**" />
   </ItemGroup>
 
@@ -32,7 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Features\Merchant\Command\NewFolder\" />
     <Folder Include="Presentation\Filters\" />
     <Folder Include="Presentation\Web\" />
   </ItemGroup>

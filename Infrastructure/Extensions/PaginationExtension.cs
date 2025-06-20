@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Drawing;
+using SurfTicket.Infrastructure.Common;
 
-namespace SurfTicket.Infrastructure.Common
+namespace SurfTicket.Infrastructure.Extensions
 {
-    public static class PaginationExtensions
+    public static class PaginationExtension
     {
-        public static async Task<PagedResult<T>> ToPagedResultAsync<T>(this IQueryable<T> query, int page, int size)
+        public static async Task<PagedData<T>> ToPagedResultAsync<T>(this IQueryable<T> query, int page, int size)
         {
             var totalItems = await query.CountAsync();
             var items = await query
@@ -13,7 +13,7 @@ namespace SurfTicket.Infrastructure.Common
                 .Take(size)
                 .ToListAsync();
 
-            var pagedResult = new PagedResult<T>
+            var pagedResult = new PagedData<T>
             {
                 Items = items,
                 TotalItems = totalItems,
